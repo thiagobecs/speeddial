@@ -27,6 +27,9 @@ try{
 }catch(e){}
 </script>
 <style>
+html, dialog {
+  zoom: 0.9;
+}
 :root{
   --primary:#84cc16;
   --bg:#121418;
@@ -179,7 +182,7 @@ h1{margin:0;font-weight:300;font-size:clamp(1.9rem,5vw,2.8rem);letter-spacing:-.
 
 footer{max-width:84rem;margin:0 auto;padding:2rem 1.5rem 3rem;text-align:center;font-size:.75rem;color:var(--sub);line-height:1.6}
 kbd{border:1px solid var(--bd);border-radius:.25rem;padding:.1rem .35rem;font:inherit;background:var(--card)}
-dialog{border:1px solid var(--bd);border-radius:.75rem;background:var(--card);color:var(--tx);padding:0;width:min(34rem,94vw);box-shadow:0 16px 40px rgba(0,0,0,.5)}
+dialog{border:1px solid var(--bd);border-radius:.75rem;background:var(--card);color:var(--tx);padding:0;width:min(36rem,94vw);box-shadow:0 16px 40px rgba(0,0,0,.5)}
 dialog::backdrop{background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
 .box{padding:1.5rem;display:grid;gap:1.1rem}
 .hd{display:flex;justify-content:space-between;align-items:center}
@@ -191,9 +194,11 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
 .sw{width:2.25rem;height:2.25rem;border-radius:50%;border:2px solid transparent;cursor:pointer}
 .sw.on{border-color:var(--tx)}
 #c-custom{width:2.25rem;height:2.25rem;padding:0;border:0;background:none;cursor:pointer}
-.tab-row{display:flex;border-bottom:1px solid var(--bd);gap:.5rem;margin-bottom:.5rem;overflow-x:auto}
-.tab-btn{padding:.5rem .75rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--sub);font:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap}
-.tab-btn.on{border-color:var(--primary);color:var(--tx);font-weight:600}
+.tab-row{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;background:var(--bg);padding:.35rem;border-radius:.65rem;border:1px solid var(--bd);margin-bottom:.85rem}
+@media(max-width:580px){.tab-row{grid-template-columns:repeat(2,1fr)}}
+.tab-btn{padding:.55rem .45rem;background:transparent;border:1px solid transparent;border-radius:.45rem;color:var(--sub);font:inherit;font-size:.8rem;font-weight:500;cursor:pointer;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:all .15s ease}
+.tab-btn:hover{color:var(--tx);background:var(--hover)}
+.tab-btn.on{background:var(--card);color:var(--primary);border-color:var(--bd);font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.15)}
 .notice{padding:.75rem;border-radius:.5rem;background:rgba(132,204,22,.08);border:1px solid rgba(132,204,22,.2);font-size:.78rem;color:var(--tx);line-height:1.4}
 .notice code{font-family:monospace;background:var(--bg);padding:.1rem .3rem;border-radius:.25rem}
 #toast{position:fixed;left:50%;bottom:1.5rem;transform:translate(-50%,150%);transition:transform .25s;background:var(--card);border:1px solid var(--bd);padding:.7rem 1.2rem;border-radius:.6rem;font-size:.85rem;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:99;display:flex;align-items:center;gap:.75rem}
@@ -308,10 +313,10 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
   </div>
   
   <div class="tab-row">
-    <button class="tab-btn on" data-tab="tab-geral">Geral</button>
-    <button class="tab-btn" data-tab="tab-visual">Aparência & Fundo</button>
-    <button class="tab-btn" data-tab="tab-github"><i class="fa-brands fa-github"></i> Sincronização GitHub</button>
-    <button class="tab-btn" data-tab="tab-dados">Backup & Importação</button>
+    <button class="tab-btn on" data-tab="tab-geral"><i class="fa-solid fa-sliders"></i> Geral</button>
+    <button class="tab-btn" data-tab="tab-visual"><i class="fa-solid fa-palette"></i> Aparência</button>
+    <button class="tab-btn" data-tab="tab-github"><i class="fa-brands fa-github"></i> GitHub</button>
+    <button class="tab-btn" data-tab="tab-dados"><i class="fa-solid fa-database"></i> Backup</button>
   </div>
 
   <!-- Aba Geral -->
