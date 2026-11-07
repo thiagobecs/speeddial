@@ -10,29 +10,88 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script>
-/* Aplica tema e estilo inicial antes de renderizar (evita flash) */
+/* Aplica tema, wallpaper e estilo antes de renderizar (evita flash) */
 try{
-  var d=document.documentElement,m=localStorage.getItem('dashboard_mode'),c=localStorage.getItem('dashboard_primary'),v=localStorage.getItem('dashboard_view_mode');
+  var d=document.documentElement,
+      m=localStorage.getItem('dashboard_mode'),
+      c=localStorage.getItem('dashboard_primary'),
+      v=localStorage.getItem('dashboard_view_mode'),
+      bg=localStorage.getItem('dashboard_bg_img');
   if(m==='light')d.classList.add('light');
   if(v==='compact')d.classList.add('compact-mode');
   if(c&&/^#[0-9a-f]{6}$/i.test(c)){d.style.setProperty('--primary',c);document.querySelector('meta[name="theme-color"]').setAttribute('content',c)}
+  if(bg){
+    d.style.setProperty('--custom-bg',`url("${bg}")`);
+    d.classList.add('has-bg');
+  }
 }catch(e){}
 </script>
 <style>
-:root{--primary:#84cc16;--bg:#121418;--card:#181b22;--hover:#20242e;--bd:#1f242d;--tx:#d1d5db;--sub:#9ca3af;--accent:#3b82f6}
-.light{--bg:#f3f4f6;--card:#fff;--hover:#e5e7eb;--bd:#d1d5db;--tx:#1f2937;--sub:#4b5563;--accent:#2563eb}
+:root{
+  --primary:#84cc16;
+  --bg:#121418;
+  --card:#181b22;
+  --hover:#20242e;
+  --bd:#1f242d;
+  --tx:#d1d5db;
+  --sub:#9ca3af;
+  --accent:#3b82f6;
+  --card-glass:rgba(24,27,34,0.85);
+  --bd-glass:rgba(255,255,255,0.08);
+  --custom-bg:none;
+}
+.light{
+  --bg:#f3f4f6;
+  --card:#fff;
+  --hover:#e5e7eb;
+  --bd:#d1d5db;
+  --tx:#1f2937;
+  --sub:#4b5563;
+  --accent:#2563eb;
+  --card-glass:rgba(255,255,255,0.85);
+  --bd-glass:rgba(0,0,0,0.08);
+}
+.has-bg body{
+  background:var(--custom-bg) center/cover fixed no-repeat !important;
+}
+.has-bg .col, .has-bg #quick-notes-wrap, .has-bg .top-bar-wrap{
+  background:var(--card-glass) !important;
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-color:var(--bd-glass) !important;
+}
+.has-bg .card{
+  background:rgba(0,0,0,0.3) !important;
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+}
+.light.has-bg .card{
+  background:rgba(255,255,255,0.5) !important;
+}
+
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s}
 :focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 ::selection{background:var(--primary);color:#000}
-main{max-width:84rem;margin:0 auto;padding:2.5rem 1.5rem 1rem}
+main{max-width:84rem;margin:0 auto;padding:2.5rem 1.5rem 1rem;transition:opacity .25s ease}
+
+/* Modo Zen (Foco) */
+body.zen-mode #grid,
+body.zen-mode #quick-notes-wrap,
+body.zen-mode #top-pinned,
+body.zen-mode footer{display:none !important}
+body.zen-mode main{padding-top:15vh;max-width:44rem}
+body.zen-mode header{justify-content:center;text-align:center}
+body.zen-mode .header-meta{margin-top:.5rem;justify-content:center}
+body.zen-mode .row{margin-top:1rem;justify-content:center}
+
 header{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
 #date{font-size:.75rem;letter-spacing:.15em;color:var(--sub);font-weight:600;margin-bottom:.5rem}
 .hello{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap}
 h1{margin:0;font-weight:300;font-size:clamp(1.9rem,5vw,2.8rem);letter-spacing:-.02em}
-.header-meta{display:inline-flex;align-items:center;gap:.6rem;font:0.95rem ui-monospace,monospace;color:var(--sub)}
-#weather{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--card);border:1px solid var(--bd);border-radius:.35rem;font-size:.8rem;font-family:system-ui,sans-serif;cursor:default}
+.header-meta{display:inline-flex;align-items:center;gap:.6rem;font:0.95rem ui-monospace,monospace;color:var(--sub);flex-wrap:wrap}
+.badge-meta{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--card);border:1px solid var(--bd);border-radius:.35rem;font-size:.8rem;font-family:system-ui,sans-serif;cursor:default}
 .row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
 .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:.5rem;background:var(--card);color:inherit;border:1px solid var(--bd);font:inherit;font-size:.85rem;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s}
 .btn:hover{background:var(--hover)}.btn.on{border-color:var(--primary);color:var(--primary)}
@@ -45,8 +104,20 @@ h1{margin:0;font-weight:300;font-size:clamp(1.9rem,5vw,2.8rem);letter-spacing:-.
 @keyframes spin{to{transform:rotate(360deg)}}
 .ib{background:none;border:0;color:var(--sub);cursor:pointer;padding:.35rem;font-size:.75rem;border-radius:.3rem}
 .ib:hover{color:var(--primary)}.ib.del:hover{color:#f87171}
+
+/* Barra de Links Fixados */
+.top-bar-wrap{background:var(--card);border:1px solid var(--bd);border-radius:.75rem;padding:.6rem .8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:.6rem;overflow-x:auto}
+.top-bar-label{font-size:.7rem;font-weight:700;color:var(--sub);letter-spacing:.08em;white-space:nowrap;padding-right:.4rem;border-right:1px solid var(--bd);display:flex;align-items:center;gap:.35rem}
+.pin-link{display:inline-flex;align-items:center;gap:.45rem;padding:.35rem .65rem;border-radius:.4rem;background:var(--bg);border:1px solid var(--bd);color:inherit;text-decoration:none;font-size:.8rem;font-weight:500;white-space:nowrap;transition:border-color .15s}
+.pin-link:hover{border-color:var(--primary);color:var(--primary)}
+.pin-link img{width:1rem;height:1rem;border-radius:2px;object-fit:contain}
+
+/* Busca */
 .sbox{position:relative;margin-bottom:1.75rem}
-#q{width:100%;padding:.85rem 1.1rem;border-radius:.6rem;border:1px solid var(--bd);background:var(--card);color:inherit;font:inherit;font-size:1rem;transition:border-color .2s}
+.search-wrapper{display:flex;align-items:center;position:relative}
+.engine-toggle{position:absolute;left:.6rem;z-index:2;background:none;border:none;cursor:pointer;font-size:1rem;padding:.4rem;border-radius:.4rem;display:flex;align-items:center;color:var(--sub)}
+.engine-toggle:hover{color:var(--primary)}
+#q{width:100%;padding:.85rem 1.1rem .85rem 2.8rem;border-radius:.6rem;border:1px solid var(--bd);background:var(--card);color:inherit;font:inherit;font-size:1rem;transition:border-color .2s}
 #q:focus{border-color:var(--primary);outline:none}
 #q::placeholder{color:var(--sub)}
 #sug{position:absolute;left:0;right:0;top:calc(100% + .35rem);margin:0;padding:.35rem;list-style:none;background:var(--card);border:1px solid var(--bd);border-radius:.6rem;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:50}
@@ -55,6 +126,8 @@ h1{margin:0;font-weight:300;font-size:clamp(1.9rem,5vw,2.8rem);letter-spacing:-.
 #sug li:hover,#sug li.on{background:var(--hover)}
 #sug li.on i{color:var(--primary)}
 .bang-tag{font-size:.75rem;background:var(--bg);border:1px solid var(--bd);padding:.1rem .4rem;border-radius:.25rem;color:var(--primary);font-family:monospace;font-weight:bold}
+
+/* Grade de Links */
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;align-items:start}
 .empty{color:var(--sub);grid-column:1/-1;text-align:center;padding:3rem 1rem}
 .col{background:var(--card);border:1px solid var(--bd);border-radius:.75rem;padding:1rem;cursor:grab}
@@ -90,16 +163,23 @@ h1{margin:0;font-weight:300;font-size:clamp(1.9rem,5vw,2.8rem);letter-spacing:-.
 .compact-mode .ico{width:1.5rem;height:1.5rem}
 .compact-mode .ico img{width:1.5rem;height:1.5rem}
 
-/* Bloco de Notas Rápido */
+/* Bloco de Notas */
 #quick-notes-wrap{margin-top:2rem;background:var(--card);border:1px solid var(--bd);border-radius:.75rem;padding:1rem}
 .notes-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:.5rem}
 .notes-header h3{margin:0;font-size:.85rem;color:var(--sub);font-weight:600;letter-spacing:.05em}
 #quick-notes{width:100%;min-height:4.5rem;background:var(--bg);border:1px solid var(--bd);border-radius:.5rem;padding:.75rem;color:inherit;font:inherit;font-size:.85rem;resize:vertical}
 #quick-notes:focus{outline:none;border-color:var(--primary)}
 
+/* Menu de Contexto Customizado */
+#ctx-menu{position:fixed;background:var(--card);border:1px solid var(--bd);border-radius:.6rem;padding:.4rem;min-width:11rem;box-shadow:0 12px 32px rgba(0,0,0,.5);z-index:1000;display:none}
+#ctx-menu button{width:100%;background:none;border:none;color:var(--tx);font:inherit;font-size:.82rem;padding:.5rem .75rem;display:flex;align-items:center;gap:.6rem;cursor:pointer;border-radius:.35rem;text-align:left}
+#ctx-menu button:hover{background:var(--hover);color:var(--primary)}
+#ctx-menu button.del:hover{color:#f87171}
+#ctx-menu hr{border:none;border-top:1px solid var(--bd);margin:.3rem 0}
+
 footer{max-width:84rem;margin:0 auto;padding:2rem 1.5rem 3rem;text-align:center;font-size:.75rem;color:var(--sub);line-height:1.6}
 kbd{border:1px solid var(--bd);border-radius:.25rem;padding:.1rem .35rem;font:inherit;background:var(--card)}
-dialog{border:1px solid var(--bd);border-radius:.75rem;background:var(--card);color:var(--tx);padding:0;width:min(32rem,94vw);box-shadow:0 16px 40px rgba(0,0,0,.5)}
+dialog{border:1px solid var(--bd);border-radius:.75rem;background:var(--card);color:var(--tx);padding:0;width:min(34rem,94vw);box-shadow:0 16px 40px rgba(0,0,0,.5)}
 dialog::backdrop{background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
 .box{padding:1.5rem;display:grid;gap:1.1rem}
 .hd{display:flex;justify-content:space-between;align-items:center}
@@ -111,8 +191,8 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
 .sw{width:2.25rem;height:2.25rem;border-radius:50%;border:2px solid transparent;cursor:pointer}
 .sw.on{border-color:var(--tx)}
 #c-custom{width:2.25rem;height:2.25rem;padding:0;border:0;background:none;cursor:pointer}
-.tab-row{display:flex;border-bottom:1px solid var(--bd);gap:.5rem;margin-bottom:.5rem}
-.tab-btn{padding:.5rem .75rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--sub);font:inherit;font-size:.85rem;cursor:pointer}
+.tab-row{display:flex;border-bottom:1px solid var(--bd);gap:.5rem;margin-bottom:.5rem;overflow-x:auto}
+.tab-btn{padding:.5rem .75rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--sub);font:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap}
 .tab-btn.on{border-color:var(--primary);color:var(--tx);font-weight:600}
 .notice{padding:.75rem;border-radius:.5rem;background:rgba(132,204,22,.08);border:1px solid rgba(132,204,22,.2);font-size:.78rem;color:var(--tx);line-height:1.4}
 .notice code{font-family:monospace;background:var(--bg);padding:.1rem .3rem;border-radius:.25rem}
@@ -131,11 +211,13 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
         <h1 id="hello"></h1>
         <div class="header-meta">
           <span id="clock"></span>
-          <span id="weather" title="Clima atual" hidden></span>
+          <span id="weather" class="badge-meta" title="Clima atual" hidden></span>
+          <span id="currency" class="badge-meta" title="Cotação Dólar Comercial" hidden></span>
         </div>
       </div>
     </div>
     <div class="row">
+      <button class="btn" id="b-zen" title="Modo Foco / Zen (Tecla Z)"><i class="fa-solid fa-moon"></i> Foco</button>
       <button class="btn cloud-btn" id="b-cloud" title="Status de Sincronização GitHub">
         <i class="fa-brands fa-github"></i> <span id="cloud-label">GitHub</span>
       </button>
@@ -144,8 +226,19 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
     </div>
   </header>
 
+  <!-- Barra de Links Fixados / Favoritos Rápidos -->
+  <section class="top-bar-wrap" id="top-pinned" hidden>
+    <div class="top-bar-label"><i class="fa-solid fa-thumbtack" style="color:var(--primary)"></i> FIXADOS</div>
+    <div id="top-pinned-links" class="row" style="flex:1"></div>
+  </section>
+
   <div class="sbox">
-    <input id="q" type="search" placeholder="Buscar links ou pesquisar (!y YouTube, !gh GitHub, !c ChatGPT, !w Wiki, !a Amazon)" autocomplete="off" aria-label="Buscar" role="combobox" aria-autocomplete="list" aria-controls="sug" aria-expanded="false">
+    <div class="search-wrapper">
+      <button type="button" class="engine-toggle" id="engine-btn" title="Alternar mecanismo de busca">
+        <i class="fa-brands fa-google" id="engine-icon"></i>
+      </button>
+      <input id="q" type="search" placeholder="Buscar links ou pesquisar (!y YouTube, !gh GitHub, !c ChatGPT, !w Wiki, !a Amazon)" autocomplete="off" aria-label="Buscar" role="combobox" aria-autocomplete="list" aria-controls="sug" aria-expanded="false">
+    </div>
     <ul id="sug" role="listbox" hidden></ul>
   </div>
 
@@ -158,15 +251,25 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
       <i class="fa-solid fa-chevron-down" id="notes-arrow" style="font-size:.7rem;color:var(--sub)"></i>
     </div>
     <div id="notes-body" hidden>
-      <textarea id="quick-notes" placeholder="Rascunhos, links para ver depois, lembretes do dia... (salva automaticamente)"></textarea>
+      <textarea id="quick-notes" placeholder="Rascunhos, links para ver depois, lembretes do dia... (salva automaticamente no GitHub)"></textarea>
     </div>
   </section>
 </main>
 
 <footer>
-  Pressione <kbd>/</kbd> para buscar, <kbd>Enter</kbd> para abrir o primeiro resultado.<br>
-  Atalhos de busca: <span class="bang-tag">!y</span> YouTube, <span class="bang-tag">!gh</span> GitHub, <span class="bang-tag">!c</span> ChatGPT, <span class="bang-tag">!w</span> Wikipedia, <span class="bang-tag">!m</span> Maps, <span class="bang-tag">!a</span> Amazon.
+  Pressione <kbd>/</kbd> para buscar, <kbd>Z</kbd> para Modo Foco, <kbd>Enter</kbd> para abrir o primeiro resultado.<br>
+  Atalhos: <span class="bang-tag">!y</span> YouTube, <span class="bang-tag">!gh</span> GitHub, <span class="bang-tag">!c</span> ChatGPT, <span class="bang-tag">!w</span> Wikipedia, <span class="bang-tag">!m</span> Maps, <span class="bang-tag">!a</span> Amazon.
 </footer>
+
+<!-- Menu de Contexto Customizado (Botão Direito) -->
+<div id="ctx-menu">
+  <button data-ctx="open-new"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir em nova aba</button>
+  <button data-ctx="pin"><i class="fa-solid fa-thumbtack"></i> <span id="ctx-pin-txt">Fixar no topo</span></button>
+  <button data-ctx="copy"><i class="fa-solid fa-copy"></i> Copiar link</button>
+  <hr>
+  <button data-ctx="edit"><i class="fa-solid fa-pen"></i> Editar</button>
+  <button data-ctx="del" class="del"><i class="fa-solid fa-trash-can"></i> Excluir</button>
+</div>
 
 <!-- Modal Adicionar / Editar Link -->
 <dialog id="m-item"><div class="box">
@@ -184,6 +287,11 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
       </select>
     </div>
     <div id="f-icon-wrap"><label for="f-icon">Classes FontAwesome</label><input class="in" id="f-icon" placeholder="fa-solid fa-code"></div>
+    <div class="row" style="align-items:center">
+      <label style="margin:0;cursor:pointer;display:flex;align-items:center;gap:.4rem">
+        <input type="checkbox" id="f-pin"> Fixar na barra superior
+      </label>
+    </div>
     <div class="row" style="justify-content:flex-end;margin-top:.5rem">
       <button type="button" class="btn" data-close>Cancelar</button>
       <button class="btn save">Salvar</button>
@@ -201,8 +309,9 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
   
   <div class="tab-row">
     <button class="tab-btn on" data-tab="tab-geral">Geral</button>
+    <button class="tab-btn" data-tab="tab-visual">Aparência & Fundo</button>
     <button class="tab-btn" data-tab="tab-github"><i class="fa-brands fa-github"></i> Sincronização GitHub</button>
-    <button class="tab-btn" data-tab="tab-dados">Backup</button>
+    <button class="tab-btn" data-tab="tab-dados">Backup & Importação</button>
   </div>
 
   <!-- Aba Geral -->
@@ -210,10 +319,36 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
     <div><label>Tema</label><div class="row"><button class="btn" data-mode="dark">Escuro</button><button class="btn" data-mode="light">Claro</button></div></div>
     <div><label>Visualização dos Links</label><div class="row"><button class="btn" data-view="cards">Cartões Detalhados</button><button class="btn" data-view="compact">Modo Ícones (Compacto)</button></div></div>
     <div><label>Abrir links</label><div class="row"><button class="btn" data-open="same">Na mesma aba</button><button class="btn" data-open="new">Em nova aba</button></div></div>
+    <div>
+      <label>Mecanismo de Busca Padrão</label>
+      <select class="in" id="sel-engine">
+        <option value="google">Google</option>
+        <option value="duckduckgo">DuckDuckGo</option>
+        <option value="brave">Brave Search</option>
+        <option value="bing">Bing</option>
+        <option value="chatgpt">ChatGPT</option>
+      </select>
+    </div>
+    <div>
+      <label>Widgets no Cabeçalho</label>
+      <div class="row">
+        <button class="btn" id="b-weather-toggle"><i class="fa-solid fa-cloud-sun"></i> Atualizar Clima</button>
+        <button class="btn" id="b-currency-toggle"><i class="fa-solid fa-dollar-sign"></i> Alternar Dólar/Cotação</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aba Visual & Papel de Parede -->
+  <div id="tab-visual" class="tab-content box" style="padding:0" hidden>
     <div><label>Cor de destaque</label><div class="row" id="sw"><input type="color" id="c-custom" aria-label="Cor personalizada"></div></div>
     <div>
-      <label>Previsão do tempo</label>
-      <div class="row"><button class="btn" id="b-weather-toggle">Atualizar clima local</button></div>
+      <label for="bg-url">Imagem de Fundo (Papel de Parede / Wallpaper)</label>
+      <input class="in" id="bg-url" placeholder="Cole a URL de uma imagem (ex: Unsplash)">
+      <div class="row" style="margin-top:.4rem">
+        <button class="btn" id="b-bg-save">Aplicar Imagem</button>
+        <button class="btn" id="b-bg-daily">Wallpaper Aleatório Unsplash</button>
+        <button class="btn" id="b-bg-remove">Remover Imagem</button>
+      </div>
     </div>
   </div>
 
@@ -225,11 +360,11 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
     </div>
     <div>
       <label for="gh-owner">Seu Usuário do GitHub</label>
-      <input class="in" id="gh-owner" placeholder="Ex: seu-usuario">
+      <input class="in" id="gh-owner" placeholder="Ex: thiagobecs">
     </div>
     <div>
       <label for="gh-repo">Nome do Repositório</label>
-      <input class="in" id="gh-repo" placeholder="Ex: SpeedDial">
+      <input class="in" id="gh-repo" placeholder="Ex: speeddial">
     </div>
     <div>
       <label for="gh-branch">Branch Principal</label>
@@ -239,7 +374,7 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
       <label for="gh-token">GitHub Personal Access Token (PAT)</label>
       <input class="in" id="gh-token" type="password" placeholder="ghp_... (com permissão de contents:write)">
       <div style="font-size:.7rem;color:var(--sub);margin-top:.3rem">
-        Gere em: <code>github.com/settings/tokens</code> (Classic token com escopo <b>repo</b> ou Fine-grained com <b>Contents: Read & Write</b>). Fica salvo apenas no seu navegador.
+        Gere em: <code>github.com/settings/tokens</code> (Classic token com escopo <b>repo</b>). Fica salvo apenas no seu navegador.
       </div>
     </div>
     <div class="row" style="margin-top:.4rem">
@@ -248,9 +383,18 @@ label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercas
     </div>
   </div>
 
-  <!-- Aba Backup -->
+  <!-- Aba Backup & Importação de Navegador -->
   <div id="tab-dados" class="tab-content box" style="padding:0" hidden>
-    <div><label>Exportar / Importar</label><div class="row"><button class="btn" id="b-exp">Exportar JSON</button><button class="btn" id="b-imp">Importar JSON</button><button class="btn" id="b-reset">Restaurar padrão</button></div></div>
+    <div>
+      <label>Importar Favoritos do Navegador (Chrome / Edge / Safari / Firefox)</label>
+      <button class="btn" id="b-imp-bookmarks"><i class="fa-solid fa-file-import"></i> Importar arquivo HTML de favoritos</button>
+      <input type="file" id="file-bookmarks" accept=".html,.htm" hidden>
+      <div style="font-size:.72rem;color:var(--sub);margin-top:.3rem">
+        Exporte os favoritos do seu navegador como HTML e selecione o arquivo aqui para adicionar suas pastas e links.
+      </div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--bd)">
+    <div><label>Exportar / Importar Backup Completo</label><div class="row"><button class="btn" id="b-exp">Exportar JSON</button><button class="btn" id="b-imp">Importar JSON</button><button class="btn" id="b-reset">Restaurar padrão</button></div></div>
     <input type="file" id="file" accept="application/json,.json" hidden>
   </div>
 </div></dialog>
@@ -286,7 +430,8 @@ function sanitize(list,needUrl){
     name: String(a.name).trim(),
     url: normalizeUrl(a.url),
     icon: String(a.icon||'fa-solid fa-globe'),
-    useFavicon: a.useFavicon !== false
+    useFavicon: a.useFavicon !== false,
+    pinned: !!a.pinned
   })).filter(a=>!needUrl||a.url);
 }
 
@@ -310,6 +455,7 @@ function save(skipCloud=false){
   store('dashboard_collapsed',collapsed);
   raw('dashboard_updated_at',Date.now().toString());
   render();
+  renderPinned();
   if(!skipCloud) pushGitHubDebounced();
 }
 
@@ -326,7 +472,8 @@ function card(a,cls){
   let host='';try{host=new URL(a.url).hostname}catch(e){}
   const sub=a.url.replace(/^https?:\/\//,'').replace(/\/$/,'').toLowerCase();
   const ic=a.useFavicon&&host?`<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128" alt="" loading="lazy">`:`<i class="${esc(a.icon)}"></i>`;
-  return `<div class="card${cls}" draggable="true" data-id="${a.id}"><a class="link" href="${esc(a.url||'#')}"${newTab()?' target="_blank" rel="noopener noreferrer"':''} draggable="false"><span class="ico">${ic}</span><span class="txt"><b>${esc(a.name)}</b><small>${esc(sub)}</small></span></a><span class="acts"><button class="ib" data-act="edit" title="Editar" aria-label="Editar ${esc(a.name)}"><i class="fa-solid fa-pen"></i></button><button class="ib del" data-act="del" title="Excluir" aria-label="Excluir ${esc(a.name)}"><i class="fa-solid fa-trash-can"></i></button></span></div>`;
+  const pinIco=a.pinned?`<i class="fa-solid fa-thumbtack" style="font-size:.65rem;color:var(--primary);margin-left:.35rem" title="Fixado"></i>`:'';
+  return `<div class="card${cls}" draggable="true" data-id="${a.id}"><a class="link" href="${esc(a.url||'#')}"${newTab()?' target="_blank" rel="noopener noreferrer"':''} draggable="false"><span class="ico">${ic}</span><span class="txt"><b>${esc(a.name)}${pinIco}</b><small>${esc(sub)}</small></span></a><span class="acts"><button class="ib" data-act="pin" title="${a.pinned?'Desafixar':'Fixar no topo'}"><i class="fa-solid fa-thumbtack"${a.pinned?' style="color:var(--primary)"':''}></i></button><button class="ib" data-act="edit" title="Editar" aria-label="Editar ${esc(a.name)}"><i class="fa-solid fa-pen"></i></button><button class="ib del" data-act="del" title="Excluir" aria-label="Excluir ${esc(a.name)}"><i class="fa-solid fa-trash-can"></i></button></span></div>`;
 }
 
 function render(){
@@ -343,6 +490,18 @@ function render(){
   $('#cats').innerHTML=order.map(c=>`<option value="${esc(c)}">`).join('');
 }
 
+function renderPinned(){
+  const pinned=apps.filter(a=>a.pinned);
+  const wrap=$('#top-pinned'),box=$('#top-pinned-links');
+  if(!pinned.length){wrap.hidden=true;return}
+  wrap.hidden=false;
+  box.innerHTML=pinned.map(a=>{
+    let host='';try{host=new URL(a.url).hostname}catch(e){}
+    const ic=a.useFavicon&&host?`<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=64" alt="">`:`<i class="${esc(a.icon)}" style="color:var(--primary)"></i>`;
+    return `<a class="pin-link" href="${esc(a.url)}" ${newTab()?'target="_blank" rel="noopener noreferrer"':''} data-id="${a.id}">${ic}<span>${esc(a.name)}</span></a>`;
+  }).join('');
+}
+
 /* ---------- Ações na grade ---------- */
 const grid=$('#grid');
 grid.addEventListener('click',e=>{
@@ -357,9 +516,46 @@ grid.addEventListener('click',e=>{
   }
   if(b.dataset.act==='add')openItem(null,col.dataset.cat);
   if(b.dataset.act==='edit')openItem(card.dataset.id);
+  if(b.dataset.act==='pin'){
+    const item=apps.find(a=>a.id===card.dataset.id);
+    if(item){item.pinned=!item.pinned;save();toast(item.pinned?'Link fixado no topo':'Link desafixado')}
+  }
   if(b.dataset.act==='del'){const undo=snapshot();apps=apps.filter(a=>a.id!==card.dataset.id);save();toast('Link removido',undo)}
 });
 grid.addEventListener('error',e=>{if(e.target.tagName==='IMG')e.target.replaceWith(Object.assign(document.createElement('i'),{className:'fa-solid fa-globe'}))},true);
+
+/* ---------- Menu de Contexto (Botão Direito) ---------- */
+const ctxMenu=$('#ctx-menu');
+let ctxTargetId=null;
+document.addEventListener('contextmenu',e=>{
+  const c=e.target.closest('.card')||e.target.closest('.pin-link');
+  if(c&&c.dataset.id){
+    e.preventDefault();
+    ctxTargetId=c.dataset.id;
+    const item=apps.find(a=>a.id===ctxTargetId);
+    if(!item)return;
+    $('#ctx-pin-txt').textContent=item.pinned?'Desafixar do topo':'Fixar no topo';
+    ctxMenu.style.display='block';
+    const mw=ctxMenu.offsetWidth||180,mh=ctxMenu.offsetHeight||160;
+    const x=Math.min(e.clientX,window.innerWidth-mw-10);
+    const y=Math.min(e.clientY,window.innerHeight-mh-10);
+    ctxMenu.style.left=x+'px';ctxMenu.style.top=y+'px';
+  }else{
+    ctxMenu.style.display='none';
+  }
+});
+document.addEventListener('click',e=>{if(!e.target.closest('#ctx-menu'))ctxMenu.style.display='none'});
+ctxMenu.addEventListener('click',e=>{
+  const b=e.target.closest('[data-ctx]');if(!b||!ctxTargetId)return;
+  const item=apps.find(a=>a.id===ctxTargetId);
+  ctxMenu.style.display='none';
+  if(!item)return;
+  if(b.dataset.ctx==='open-new')window.open(item.url,'_blank','noopener,noreferrer');
+  if(b.dataset.ctx==='copy'){navigator.clipboard.writeText(item.url);toast('Link copiado!')}
+  if(b.dataset.ctx==='pin'){item.pinned=!item.pinned;save();toast(item.pinned?'Link fixado':'Link desafixado')}
+  if(b.dataset.ctx==='edit')openItem(item.id);
+  if(b.dataset.ctx==='del'){const undo=snapshot();apps=apps.filter(a=>a.id!==item.id);save();toast('Link removido',undo)}
+});
 
 /* ---------- Arrastar e soltar ---------- */
 let drag=null;
@@ -400,6 +596,7 @@ function openItem(id,cat){
   $('#f-id').value=a?a.id:'';$('#f-cat').value=a?a.category:(cat||'');
   $('#f-name').value=a?a.name:'';$('#f-url').value=a?a.url:'';
   $('#f-type').value=!a||a.useFavicon?'favicon':'fa';$('#f-icon').value=a?a.icon:'fa-solid fa-globe';
+  $('#f-pin').checked=!!(a&&a.pinned);
   syncType();$('#m-item').showModal();
   (a||cat?$('#f-name'):$('#f-cat')).focus();
 }
@@ -408,7 +605,7 @@ $('#f-item').onsubmit=e=>{
   e.preventDefault();
   const id=$('#f-id').value,category=$('#f-cat').value.trim().toUpperCase()||'GERAL',name=$('#f-name').value.trim(),url=normalizeUrl($('#f-url').value);
   if(!name||!url){toast('Endereço inválido. Confira a URL.');return}
-  const data={category,name,url,useFavicon:$('#f-type').value==='favicon',icon:$('#f-icon').value.trim()||'fa-solid fa-globe'};
+  const data={category,name,url,useFavicon:$('#f-type').value==='favicon',icon:$('#f-icon').value.trim()||'fa-solid fa-globe',pinned:$('#f-pin').checked};
   if(id)Object.assign(apps.find(a=>a.id===id),data);else apps.push({id:uid(),...data});
   $('#m-item').close();save();
 };
@@ -444,6 +641,37 @@ function setMode(m,s=true){
   document.documentElement.classList.toggle('light',m==='light');
   if(s)raw('dashboard_mode',m);syncSet();
 }
+
+/* Wallpaper */
+function setWallpaper(url,s=true){
+  if(url){
+    document.documentElement.style.setProperty('--custom-bg',`url("${url}")`);
+    document.documentElement.classList.add('has-bg');
+    if(s)raw('dashboard_bg_img',url);
+  }else{
+    document.documentElement.style.removeProperty('--custom-bg');
+    document.documentElement.classList.remove('has-bg');
+    if(s)localStorage.removeItem('dashboard_bg_img');
+  }
+  $('#bg-url').value=url||'';
+}
+$('#b-bg-save').onclick=()=>setWallpaper($('#bg-url').value.trim());
+$('#b-bg-daily').onclick=()=>{
+  const randomUrl='https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1920&q=80';
+  setWallpaper(randomUrl);toast('Wallpaper aplicado!');
+};
+$('#b-bg-remove').onclick=()=>{setWallpaper('');toast('Wallpaper removido')};
+
+/* Modo Zen / Foco */
+function toggleZen(){
+  document.body.classList.toggle('zen-mode');
+  const on=document.body.classList.contains('zen-mode');
+  $('#b-zen').classList.toggle('on',on);
+  toast(on?'Modo Foco ativado (Pressione Z para sair)':'Modo Foco desativado');
+  if(!on)focusSearch();
+}
+$('#b-zen').onclick=toggleZen;
+
 function syncSet(){
   const m=document.documentElement.classList.contains('light')?'light':'dark',
         v=document.documentElement.classList.contains('compact-mode')?'compact':'cards',
@@ -457,6 +685,8 @@ function syncSet(){
   $('#gh-repo').value=raw('gh_repo')||'';
   $('#gh-branch').value=raw('gh_branch')||'main';
   $('#gh-token').value=raw('gh_token')||'';
+  $('#bg-url').value=raw('dashboard_bg_img')||'';
+  $('#sel-engine').value=raw('dashboard_engine')||'google';
 }
 $('#b-set').onclick=()=>{syncSet();$('#m-set').showModal()};
 $('#b-cloud').onclick=()=>{
@@ -466,7 +696,7 @@ $('#b-cloud').onclick=()=>{
   $('#m-set').showModal();
 };
 
-/* ---------- Backup Manual ---------- */
+/* ---------- Backup Manual & Importação de Favoritos ---------- */
 $('#b-exp').onclick=()=>{
   const data=buildPayload();
   const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),download:'links.json'});
@@ -484,17 +714,46 @@ $('#file').onchange=async e=>{
     $('#m-set').close();save();toast(clean.length+' links importados',undo);
   }catch(err){toast('Arquivo inválido. Use um JSON exportado por aqui.')}
 };
+
+/* Importador de HTML de Favoritos do Navegador */
+$('#b-imp-bookmarks').onclick=()=>$('#file-bookmarks').click();
+$('#file-bookmarks').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const html=await f.text();
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    const links=doc.querySelectorAll('a[href]');
+    if(!links.length)throw 0;
+    const undo=snapshot();
+    let count=0;
+    links.forEach(a=>{
+      const url=normalizeUrl(a.getAttribute('href'));
+      const name=a.textContent.trim()||'Link';
+      if(!url||url.startsWith('javascript:')||url.startsWith('place:'))return;
+      // Tenta achar categoria pelo cabeçalho h3 anterior
+      let cat='FAVORITOS';
+      const prevH3=a.closest('dl')?.previousElementSibling;
+      if(prevH3&&prevH3.tagName==='H3'&&prevH3.textContent.trim())cat=prevH3.textContent.trim().toUpperCase();
+      apps.push({id:uid(),category:cat,name,url,icon:'fa-solid fa-globe',useFavicon:true,pinned:false});
+      count++;
+    });
+    $('#m-set').close();save();toast(`${count} favoritos importados com sucesso!`,undo);
+  }catch(err){
+    toast('Não foi possível ler os favoritos. Confira o arquivo HTML.');
+  }
+};
+
 $('#b-reset').onclick=()=>{
   if(!confirm('Restaurar o padrão? Seus links locais serão apagados.'))return;
-  ['dashboard_apps','dashboard_cat_order','dashboard_collapsed','dashboard_primary','dashboard_mode','dashboard_view_mode','dashboard_newtab','dashboard_notes'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
-  apps=mkDefaults();order=[];collapsed=[];document.documentElement.style.removeProperty('--primary');setMode('dark',false);setView('cards',false);
-  $('#quick-notes').value='';$('#m-set').close();render();
+  ['dashboard_apps','dashboard_cat_order','dashboard_collapsed','dashboard_primary','dashboard_mode','dashboard_view_mode','dashboard_newtab','dashboard_notes','dashboard_bg_img'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  apps=mkDefaults();order=[];collapsed=[];document.documentElement.style.removeProperty('--primary');setWallpaper('');setMode('dark',false);setView('cards',false);
+  $('#quick-notes').value='';$('#m-set').close();render();renderPinned();
 };
 
 /* ---------- GitHub API Sync ---------- */
 function buildPayload(){
   return {
-    versao: 3,
+    versao: 4,
     apps,
     order,
     collapsed,
@@ -502,6 +761,8 @@ function buildPayload(){
     primary: raw('dashboard_primary')||'#84cc16',
     mode: raw('dashboard_mode')||'dark',
     viewMode: raw('dashboard_view_mode')||'cards',
+    bgImg: raw('dashboard_bg_img')||'',
+    engine: raw('dashboard_engine')||'google',
     novaAba: newTab(),
     updatedAt: Date.now()
   };
@@ -515,6 +776,8 @@ function applyPayload(d){
   if(d.primary) setColor(d.primary,true);
   if(d.mode) setMode(d.mode,true);
   if(d.viewMode) setView(d.viewMode,true);
+  if(d.bgImg !== undefined) setWallpaper(d.bgImg,true);
+  if(d.engine) setEngine(d.engine,true);
   if('novaAba' in d) raw('dashboard_newtab',d.novaAba?'1':'0');
   save(true);
 }
@@ -580,13 +843,12 @@ async function pullGitHub(manual=false){
         branch=(raw('gh_branch')||'main').trim(),
         token=(raw('gh_token')||'').trim();
 
-  // Se não configurou token mas está no GitHub Pages, tenta ler links.json estático local
+  // Se não configurou token mas está no GitHub Pages, lê links.json local
   if(!token||!owner||!repo){
     try{
       const res=await fetch('./links.json?t='+Date.now());
       if(res.ok){
         const d=await res.json();
-        // Só aplica se o arquivo do repositório for mais recente que o local
         const localTime=parseInt(raw('dashboard_updated_at')||'0',10);
         if(!localTime||(d.updatedAt&&d.updatedAt>localTime)||manual){
           applyPayload(d);
@@ -627,8 +889,6 @@ $('#b-gh-save').onclick=()=>{
   toast('Configurações salvas. Sincronizando com GitHub...');
 };
 $('#b-gh-pull').onclick=()=>pullGitHub(true);
-
-/* Inicialização de dados */
 pullGitHub(false);
 
 /* ---------- Notas Rápidas ---------- */
@@ -644,7 +904,33 @@ notesText.addEventListener('input',()=>{
   pushGitHubDebounced();
 });
 
-/* ---------- Bangs de Busca & Sugestões ---------- */
+/* ---------- Mecanismos de Busca & Bangs ---------- */
+const ENGINES={
+  google: {name:'Google', url:'https://www.google.com/search?q=', icon:'fa-brands fa-google'},
+  duckduckgo: {name:'DuckDuckGo', url:'https://duckduckgo.com/?q=', icon:'fa-solid fa-shield-halved'},
+  brave: {name:'Brave Search', url:'https://search.brave.com/search?q=', icon:'fa-solid fa-lion'},
+  bing: {name:'Bing', url:'https://www.bing.com/search?q=', icon:'fa-brands fa-microsoft'},
+  chatgpt: {name:'ChatGPT', url:'https://chatgpt.com/?q=', icon:'fa-solid fa-robot'}
+};
+let curEngine=raw('dashboard_engine')||'google';
+
+function setEngine(k,s=true){
+  if(!ENGINES[k])k='google';
+  curEngine=k;
+  if(s)raw('dashboard_engine',k);
+  $('#sel-engine').value=k;
+  $('#engine-icon').className=ENGINES[k].icon;
+  $('#engine-btn').title='Mecanismo atual: '+ENGINES[k].name+' (Clique para alternar)';
+}
+$('#sel-engine').onchange=e=>setEngine(e.target.value);
+$('#engine-btn').onclick=()=>{
+  const keys=Object.keys(ENGINES);
+  const next=keys[(keys.indexOf(curEngine)+1)%keys.length];
+  setEngine(next);
+  toast('Buscador: '+ENGINES[next].name);
+};
+setEngine(curEngine,false);
+
 const BANGS={
   '!y': {name:'YouTube', url:'https://www.youtube.com/results?search_query='},
   '!gh':{name:'GitHub', url:'https://github.com/search?q='},
@@ -655,7 +941,6 @@ const BANGS={
   '!r': {name:'Reddit', url:'https://www.reddit.com/search/?q='}
 };
 
-const SEARCH='https://www.google.com/search?q=';
 const go=url=>{if(newTab())window.open(url,'_blank','noopener');else location.href=url};
 const sug=$('#sug');let sugItems=[],sugIdx=-1,sugTimer,sugSeq=0;
 function sugClose(){sug.hidden=true;sugItems=[];sugIdx=-1;$('#q').setAttribute('aria-expanded','false')}
@@ -677,7 +962,7 @@ function resolveSearch(v){
   const hit=$('.card.hit a');
   if(hit)return hit.href;
   if(/^\S+\.[a-z]{2,}(\/\S*)?$/i.test(v))return normalizeUrl(v);
-  return SEARCH+encodeURIComponent(v);
+  return (ENGINES[curEngine]||ENGINES.google).url+encodeURIComponent(v);
 }
 
 $('#q').addEventListener('input',e=>{
@@ -685,8 +970,6 @@ $('#q').addEventListener('input',e=>{
   render();
   clearTimeout(sugTimer);
   if(!v){sugClose();return}
-
-  // Sugestão de bangs se começar com !
   if(v.startsWith('!')){
     const matchBang=Object.entries(BANGS).filter(([k])=>k.startsWith(v.split(' ')[0].toLowerCase()));
     if(matchBang.length&&!v.includes(' ')){
@@ -694,7 +977,6 @@ $('#q').addEventListener('input',e=>{
       return;
     }
   }
-
   sugTimer=setTimeout(async()=>{
     const l=await fetchSug(v);
     if($('#q').value.trim()===v)sugShow(l.slice(0,8));
@@ -706,7 +988,7 @@ $('#q').addEventListener('keydown',e=>{
   if(e.key==='Enter'){
     const v=e.target.value.trim();if(!v)return;
     const pick=sugIdx>=0?sugItems[sugIdx]:null;
-    const url=pick?(typeof pick==='object'&&pick.bangUrl?pick.bangUrl:SEARCH+encodeURIComponent(pick.label||pick)):resolveSearch(v);
+    const url=pick?(typeof pick==='object'&&pick.bangUrl?pick.bangUrl:(ENGINES[curEngine]||ENGINES.google).url+encodeURIComponent(pick.label||pick)):resolveSearch(v);
     go(url);
   }
   if((e.key==='ArrowDown'||e.key==='ArrowUp')&&!sug.hidden&&sugItems.length){
@@ -732,11 +1014,15 @@ sug.addEventListener('click',e=>{
   const li=e.target.closest('li');
   if(!li)return;
   const pick=sugItems[li.dataset.i];
-  go(pick&&pick.bangUrl?pick.bangUrl:SEARCH+encodeURIComponent(pick.label||pick));
+  go(pick&&pick.bangUrl?pick.bangUrl:(ENGINES[curEngine]||ENGINES.google).url+encodeURIComponent(pick.label||pick));
 });
 
 /* Atalhos de Teclado */
 addEventListener('keydown',e=>{
+  if(e.key==='z'||e.key==='Z'){
+    if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)||document.querySelector('dialog[open]'))return;
+    e.preventDefault();toggleZen();return;
+  }
   if(e.altKey && !isNaN(e.key) && parseInt(e.key)>=1 && parseInt(e.key)<=9){
     const idx=parseInt(e.key)-1;
     if(apps[idx]&&apps[idx].url){go(apps[idx].url)}
@@ -747,7 +1033,7 @@ addEventListener('keydown',e=>{
   e.preventDefault();$('#q').focus();
 });
 
-/* ---------- Data, Hora & Clima ---------- */
+/* ---------- Data, Hora, Clima & Cotação ---------- */
 function tick(){
   const n=new Date(),h=n.getHours();
   $('#date').textContent=n.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
@@ -760,9 +1046,7 @@ async function loadWeather(){
   const wEl=$('#weather');
   try{
     const cached=load('dashboard_weather_cache',null);
-    if(cached&&Date.now()-cached.time<1800000){ // 30min cache
-      renderWeather(cached.data);return;
-    }
+    if(cached&&Date.now()-cached.time<1800000){renderWeather(cached.data);return}
     const locRes=await fetch('https://get.geojs.io/v1/ip/geo.json');
     const loc=await locRes.json();
     const wRes=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current=temperature_2m,weather_code&timezone=auto`);
@@ -770,9 +1054,7 @@ async function loadWeather(){
     const weatherObj={temp:Math.round(wData.current.temperature_2m),code:wData.current.weather_code,city:loc.city||''};
     store('dashboard_weather_cache',{time:Date.now(),data:weatherObj});
     renderWeather(weatherObj);
-  }catch(e){
-    wEl.hidden=true;
-  }
+  }catch(e){wEl.hidden=true}
 }
 function renderWeather(w){
   const wEl=$('#weather');
@@ -781,14 +1063,31 @@ function renderWeather(w){
   wEl.innerHTML=`${ico} ${w.temp}°C${w.city?' · '+esc(w.city):''}`;
   wEl.hidden=false;
 }
-$('#b-weather-toggle').onclick=()=>{
-  localStorage.removeItem('dashboard_weather_cache');
-  loadWeather();
-  toast('Atualizando clima local...');
-};
+$('#b-weather-toggle').onclick=()=>{localStorage.removeItem('dashboard_weather_cache');loadWeather();toast('Atualizando clima local...')};
 loadWeather();
 
-syncSet();render();
+async function loadCurrency(){
+  const cEl=$('#currency');
+  if(raw('dashboard_show_currency')==='0'){cEl.hidden=true;return}
+  try{
+    const res=await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
+    const data=await res.json();
+    if(data&&data.USDBRL){
+      const val=parseFloat(data.USDBRL.bid).toFixed(2);
+      cEl.innerHTML=`<i class="fa-solid fa-dollar-sign" style="color:var(--primary)"></i> R$ ${val}`;
+      cEl.hidden=false;
+    }
+  }catch(e){cEl.hidden=true}
+}
+$('#b-currency-toggle').onclick=()=>{
+  const cur=raw('dashboard_show_currency')!=='0';
+  raw('dashboard_show_currency',cur?'0':'1');
+  loadCurrency();
+  toast(cur?'Cotação desativada':'Cotação ativada');
+};
+loadCurrency();
+
+syncSet();render();renderPinned();
 function focusSearch(){if(matchMedia('(hover:none)').matches)return;const q=$('#q');q.focus();q.select()}
 focusSearch();
 addEventListener('pageshow',e=>{if(e.persisted){sugClose();focusSearch()}});
