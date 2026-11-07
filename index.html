@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#121418">
+<meta name="robots" content="noindex, nofollow">
+<title>SpeedDial</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script>
+/* Aplica tema e estilo inicial antes de renderizar (evita flash) */
+try{
+  var d=document.documentElement,m=localStorage.getItem('dashboard_mode'),c=localStorage.getItem('dashboard_primary'),v=localStorage.getItem('dashboard_view_mode');
+  if(m==='light')d.classList.add('light');
+  if(v==='compact')d.classList.add('compact-mode');
+  if(c&&/^#[0-9a-f]{6}$/i.test(c)){d.style.setProperty('--primary',c);document.querySelector('meta[name="theme-color"]').setAttribute('content',c)}
+}catch(e){}
+</script>
+<style>
+:root{--primary:#84cc16;--bg:#121418;--card:#181b22;--hover:#20242e;--bd:#1f242d;--tx:#d1d5db;--sub:#9ca3af;--accent:#3b82f6}
+.light{--bg:#f3f4f6;--card:#fff;--hover:#e5e7eb;--bd:#d1d5db;--tx:#1f2937;--sub:#4b5563;--accent:#2563eb}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);transition:background .3s,color .3s}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+::selection{background:var(--primary);color:#000}
+main{max-width:84rem;margin:0 auto;padding:2.5rem 1.5rem 1rem}
+header{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
+#date{font-size:.75rem;letter-spacing:.15em;color:var(--sub);font-weight:600;margin-bottom:.5rem}
+.hello{display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap}
+h1{margin:0;font-weight:300;font-size:clamp(1.9rem,5vw,2.8rem);letter-spacing:-.02em}
+.header-meta{display:inline-flex;align-items:center;gap:.6rem;font:0.95rem ui-monospace,monospace;color:var(--sub)}
+#weather{display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .5rem;background:var(--card);border:1px solid var(--bd);border-radius:.35rem;font-size:.8rem;font-family:system-ui,sans-serif;cursor:default}
+.row{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem 1rem;border-radius:.5rem;background:var(--card);color:inherit;border:1px solid var(--bd);font:inherit;font-size:.85rem;font-weight:500;cursor:pointer;transition:background .15s,border-color .15s}
+.btn:hover{background:var(--hover)}.btn.on{border-color:var(--primary);color:var(--primary)}
+.btn i{color:var(--primary)}
+.cloud-btn{padding:.5rem .75rem;font-size:.8rem;color:var(--sub)}
+.cloud-btn i{font-size:.9rem}
+.cloud-btn.synced i{color:var(--primary)}
+.cloud-btn.syncing i{color:var(--accent);animation:spin 1s linear infinite}
+.cloud-btn.error i{color:#f87171}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ib{background:none;border:0;color:var(--sub);cursor:pointer;padding:.35rem;font-size:.75rem;border-radius:.3rem}
+.ib:hover{color:var(--primary)}.ib.del:hover{color:#f87171}
+.sbox{position:relative;margin-bottom:1.75rem}
+#q{width:100%;padding:.85rem 1.1rem;border-radius:.6rem;border:1px solid var(--bd);background:var(--card);color:inherit;font:inherit;font-size:1rem;transition:border-color .2s}
+#q:focus{border-color:var(--primary);outline:none}
+#q::placeholder{color:var(--sub)}
+#sug{position:absolute;left:0;right:0;top:calc(100% + .35rem);margin:0;padding:.35rem;list-style:none;background:var(--card);border:1px solid var(--bd);border-radius:.6rem;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:50}
+#sug li{display:flex;align-items:center;gap:.75rem;padding:.55rem .7rem;border-radius:.4rem;cursor:pointer;font-size:.9rem}
+#sug li i{color:var(--sub);font-size:.75rem}
+#sug li:hover,#sug li.on{background:var(--hover)}
+#sug li.on i{color:var(--primary)}
+.bang-tag{font-size:.75rem;background:var(--bg);border:1px solid var(--bd);padding:.1rem .4rem;border-radius:.25rem;color:var(--primary);font-family:monospace;font-weight:bold}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem;align-items:start}
+.empty{color:var(--sub);grid-column:1/-1;text-align:center;padding:3rem 1rem}
+.col{background:var(--card);border:1px solid var(--bd);border-radius:.75rem;padding:1rem;cursor:grab}
+.ch{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--bd);padding-bottom:.5rem;margin-bottom:.9rem}
+.ch-title{display:flex;align-items:center;gap:.4rem;cursor:pointer;user-select:none;flex:1}
+.ch h2{margin:0;font-size:.75rem;letter-spacing:.12em;color:var(--sub)}
+.ch-arrow{font-size:.65rem;color:var(--sub);transition:transform .2s}
+.col.collapsed .ch-arrow{transform:rotate(-90deg)}
+.col.collapsed .body{display:none}
+.col.collapsed{padding-bottom:.5rem}
+.body{display:grid;gap:.6rem;min-height:.5rem}
+.card{display:flex;align-items:center;background:var(--bg);border:1px solid var(--bd);border-radius:.5rem;transition:border-color .15s,transform .1s}
+.card:hover,.card.hit{border-color:var(--primary)}
+.link{flex:1;min-width:0;display:flex;align-items:center;gap:.75rem;padding:.6rem .7rem;color:inherit;text-decoration:none;cursor:pointer}
+.ico{width:1.25rem;height:1.25rem;flex:none;display:flex;align-items:center;justify-content:center;color:var(--sub)}
+.ico img{width:1.25rem;height:1.25rem;border-radius:3px;object-fit:contain}
+.card:hover .ico,.card:hover b,.card.hit b{color:var(--primary)}
+.txt{min-width:0;display:grid}
+.txt b{font-size:.78rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.txt small{font-size:.65rem;color:var(--sub);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acts{display:flex;opacity:0;padding-right:.3rem}
+.card:hover .acts,.card:focus-within .acts{opacity:1}
+@media(hover:none){.acts{opacity:1}}
+.dragging{opacity:.4}.over{outline:2px dashed var(--primary);outline-offset:-2px}
+
+/* Modo Compacto */
+.compact-mode #grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+.compact-mode .body{grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:.4rem}
+.compact-mode .card{position:relative;padding:.4rem;justify-content:center}
+.compact-mode .link{padding:0;justify-content:center}
+.compact-mode .txt{display:none}
+.compact-mode .acts{position:absolute;top:0;right:0;background:var(--card);border-radius:.3rem;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.compact-mode .ico{width:1.5rem;height:1.5rem}
+.compact-mode .ico img{width:1.5rem;height:1.5rem}
+
+/* Bloco de Notas Rápido */
+#quick-notes-wrap{margin-top:2rem;background:var(--card);border:1px solid var(--bd);border-radius:.75rem;padding:1rem}
+.notes-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin-bottom:.5rem}
+.notes-header h3{margin:0;font-size:.85rem;color:var(--sub);font-weight:600;letter-spacing:.05em}
+#quick-notes{width:100%;min-height:4.5rem;background:var(--bg);border:1px solid var(--bd);border-radius:.5rem;padding:.75rem;color:inherit;font:inherit;font-size:.85rem;resize:vertical}
+#quick-notes:focus{outline:none;border-color:var(--primary)}
+
+footer{max-width:84rem;margin:0 auto;padding:2rem 1.5rem 3rem;text-align:center;font-size:.75rem;color:var(--sub);line-height:1.6}
+kbd{border:1px solid var(--bd);border-radius:.25rem;padding:.1rem .35rem;font:inherit;background:var(--card)}
+dialog{border:1px solid var(--bd);border-radius:.75rem;background:var(--card);color:var(--tx);padding:0;width:min(32rem,94vw);box-shadow:0 16px 40px rgba(0,0,0,.5)}
+dialog::backdrop{background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+.box{padding:1.5rem;display:grid;gap:1.1rem}
+.hd{display:flex;justify-content:space-between;align-items:center}
+.hd h3{margin:0;font-size:1.1rem;font-weight:600}
+label{display:block;font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin-bottom:.35rem}
+.in{width:100%;padding:.6rem .75rem;border-radius:.5rem;border:1px solid var(--bd);background:var(--bg);color:inherit;font:inherit}
+.in:focus{outline:0;border-color:var(--primary)}
+.save{background:var(--primary);color:#000;border-color:transparent;font-weight:600}.save:hover{opacity:.9;background:var(--primary)}
+.sw{width:2.25rem;height:2.25rem;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.sw.on{border-color:var(--tx)}
+#c-custom{width:2.25rem;height:2.25rem;padding:0;border:0;background:none;cursor:pointer}
+.tab-row{display:flex;border-bottom:1px solid var(--bd);gap:.5rem;margin-bottom:.5rem}
+.tab-btn{padding:.5rem .75rem;background:none;border:none;border-bottom:2px solid transparent;color:var(--sub);font:inherit;font-size:.85rem;cursor:pointer}
+.tab-btn.on{border-color:var(--primary);color:var(--tx);font-weight:600}
+.notice{padding:.75rem;border-radius:.5rem;background:rgba(132,204,22,.08);border:1px solid rgba(132,204,22,.2);font-size:.78rem;color:var(--tx);line-height:1.4}
+.notice code{font-family:monospace;background:var(--bg);padding:.1rem .3rem;border-radius:.25rem}
+#toast{position:fixed;left:50%;bottom:1.5rem;transform:translate(-50%,150%);transition:transform .25s;background:var(--card);border:1px solid var(--bd);padding:.7rem 1.2rem;border-radius:.6rem;font-size:.85rem;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:99;display:flex;align-items:center;gap:.75rem}
+#toast.show{transform:translate(-50%,0)}
+#toast button{background:none;border:0;color:var(--primary);font:inherit;font-weight:600;cursor:pointer;padding:0}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div id="date"></div>
+      <div class="hello">
+        <h1 id="hello"></h1>
+        <div class="header-meta">
+          <span id="clock"></span>
+          <span id="weather" title="Clima atual" hidden></span>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn cloud-btn" id="b-cloud" title="Status de Sincronização GitHub">
+        <i class="fa-brands fa-github"></i> <span id="cloud-label">GitHub</span>
+      </button>
+      <button class="btn" id="b-add"><i class="fa-solid fa-plus"></i> Adicionar link</button>
+      <button class="btn" id="b-set" title="Configurações" aria-label="Configurações"><i class="fa-solid fa-gear"></i></button>
+    </div>
+  </header>
+
+  <div class="sbox">
+    <input id="q" type="search" placeholder="Buscar links ou pesquisar (!y YouTube, !gh GitHub, !c ChatGPT, !w Wiki, !a Amazon)" autocomplete="off" aria-label="Buscar" role="combobox" aria-autocomplete="list" aria-controls="sug" aria-expanded="false">
+    <ul id="sug" role="listbox" hidden></ul>
+  </div>
+
+  <section id="grid"></section>
+
+  <!-- Bloco de notas rápidas retrátil -->
+  <section id="quick-notes-wrap">
+    <div class="notes-header" id="notes-toggle">
+      <h3><i class="fa-solid fa-pen-to-square" style="color:var(--primary);margin-right:.4rem"></i>NOTAS RÁPIDAS</h3>
+      <i class="fa-solid fa-chevron-down" id="notes-arrow" style="font-size:.7rem;color:var(--sub)"></i>
+    </div>
+    <div id="notes-body" hidden>
+      <textarea id="quick-notes" placeholder="Rascunhos, links para ver depois, lembretes do dia... (salva automaticamente)"></textarea>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Pressione <kbd>/</kbd> para buscar, <kbd>Enter</kbd> para abrir o primeiro resultado.<br>
+  Atalhos de busca: <span class="bang-tag">!y</span> YouTube, <span class="bang-tag">!gh</span> GitHub, <span class="bang-tag">!c</span> ChatGPT, <span class="bang-tag">!w</span> Wikipedia, <span class="bang-tag">!m</span> Maps, <span class="bang-tag">!a</span> Amazon.
+</footer>
+
+<!-- Modal Adicionar / Editar Link -->
+<dialog id="m-item"><div class="box">
+  <div class="hd"><h3 id="t-item"></h3><button type="button" class="ib" data-close aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button></div>
+  <form id="f-item" class="box" style="padding:0">
+    <input type="hidden" id="f-id">
+    <div><label for="f-cat">Categoria</label><input class="in" id="f-cat" list="cats" placeholder="Ex.: Trabalho, IA, Sites" required></div>
+    <div><label for="f-name">Nome</label><input class="in" id="f-name" placeholder="Ex.: Google" required></div>
+    <div><label for="f-url">Endereço</label><input class="in" id="f-url" placeholder="exemplo.com" required></div>
+    <div>
+      <label for="f-type">Ícone</label>
+      <select class="in" id="f-type">
+        <option value="favicon">Favicon do site (Automático HD)</option>
+        <option value="fa">FontAwesome (Ícone clássico)</option>
+      </select>
+    </div>
+    <div id="f-icon-wrap"><label for="f-icon">Classes FontAwesome</label><input class="in" id="f-icon" placeholder="fa-solid fa-code"></div>
+    <div class="row" style="justify-content:flex-end;margin-top:.5rem">
+      <button type="button" class="btn" data-close>Cancelar</button>
+      <button class="btn save">Salvar</button>
+    </div>
+  </form>
+</div></dialog>
+<datalist id="cats"></datalist>
+
+<!-- Modal Configurações & Nuvem -->
+<dialog id="m-set"><div class="box">
+  <div class="hd">
+    <h3>Configurações</h3>
+    <button type="button" class="ib" data-close aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  
+  <div class="tab-row">
+    <button class="tab-btn on" data-tab="tab-geral">Geral</button>
+    <button class="tab-btn" data-tab="tab-github"><i class="fa-brands fa-github"></i> Sincronização GitHub</button>
+    <button class="tab-btn" data-tab="tab-dados">Backup</button>
+  </div>
+
+  <!-- Aba Geral -->
+  <div id="tab-geral" class="tab-content box" style="padding:0">
+    <div><label>Tema</label><div class="row"><button class="btn" data-mode="dark">Escuro</button><button class="btn" data-mode="light">Claro</button></div></div>
+    <div><label>Visualização dos Links</label><div class="row"><button class="btn" data-view="cards">Cartões Detalhados</button><button class="btn" data-view="compact">Modo Ícones (Compacto)</button></div></div>
+    <div><label>Abrir links</label><div class="row"><button class="btn" data-open="same">Na mesma aba</button><button class="btn" data-open="new">Em nova aba</button></div></div>
+    <div><label>Cor de destaque</label><div class="row" id="sw"><input type="color" id="c-custom" aria-label="Cor personalizada"></div></div>
+    <div>
+      <label>Previsão do tempo</label>
+      <div class="row"><button class="btn" id="b-weather-toggle">Atualizar clima local</button></div>
+    </div>
+  </div>
+
+  <!-- Aba GitHub Sync -->
+  <div id="tab-github" class="tab-content box" style="padding:0" hidden>
+    <div class="notice">
+      <b>Sincronização com seu Repositório GitHub</b><br>
+      Ao configurar seu repositório, o SpeedDial salva suas alterações automaticamente no arquivo <code>links.json</code> do GitHub via API. Em qualquer dispositivo que você abrir o site, tudo estará sincronizado!
+    </div>
+    <div>
+      <label for="gh-owner">Seu Usuário do GitHub</label>
+      <input class="in" id="gh-owner" placeholder="Ex: seu-usuario">
+    </div>
+    <div>
+      <label for="gh-repo">Nome do Repositório</label>
+      <input class="in" id="gh-repo" placeholder="Ex: SpeedDial">
+    </div>
+    <div>
+      <label for="gh-branch">Branch Principal</label>
+      <input class="in" id="gh-branch" placeholder="main" value="main">
+    </div>
+    <div>
+      <label for="gh-token">GitHub Personal Access Token (PAT)</label>
+      <input class="in" id="gh-token" type="password" placeholder="ghp_... (com permissão de contents:write)">
+      <div style="font-size:.7rem;color:var(--sub);margin-top:.3rem">
+        Gere em: <code>github.com/settings/tokens</code> (Classic token com escopo <b>repo</b> ou Fine-grained com <b>Contents: Read & Write</b>). Fica salvo apenas no seu navegador.
+      </div>
+    </div>
+    <div class="row" style="margin-top:.4rem">
+      <button class="btn on" id="b-gh-save"><i class="fa-solid fa-floppy-disk"></i> Salvar e Enviar</button>
+      <button class="btn" id="b-gh-pull"><i class="fa-solid fa-arrows-rotate"></i> Baixar do GitHub</button>
+    </div>
+  </div>
+
+  <!-- Aba Backup -->
+  <div id="tab-dados" class="tab-content box" style="padding:0" hidden>
+    <div><label>Exportar / Importar</label><div class="row"><button class="btn" id="b-exp">Exportar JSON</button><button class="btn" id="b-imp">Importar JSON</button><button class="btn" id="b-reset">Restaurar padrão</button></div></div>
+    <input type="file" id="file" accept="application/json,.json" hidden>
+  </div>
+</div></dialog>
+
+<div id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now()+Math.random().toString(36).slice(2);
+const raw=(k,v)=>{try{return v===undefined?localStorage.getItem(k):localStorage.setItem(k,v)}catch(e){}};
+const load=(k,f)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?f:v}catch(e){return f}};
+const store=(k,v)=>raw(k,JSON.stringify(v));
+const newTab=()=>raw('dashboard_newtab')==='1';
+
+/* Base64 UTF-8 seguro para browser */
+const toBase64=str=>btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,(match,p1)=>String.fromCharCode('0x'+p1)));
+const fromBase64=str=>decodeURIComponent(atob(str).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+
+/* ---------- PWA Service Worker ---------- */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+
+function normalizeUrl(u){u=String(u||'').trim();if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;try{return new URL(u).href}catch(e){return ''}}
+function sanitize(list,needUrl){
+  return list.filter(a=>a&&a.name).map(a=>({
+    id: a.id || uid(),
+    category: String(a.category||'GERAL').trim().toUpperCase(),
+    name: String(a.name).trim(),
+    url: normalizeUrl(a.url),
+    icon: String(a.icon||'fa-solid fa-globe'),
+    useFavicon: a.useFavicon !== false
+  })).filter(a=>!needUrl||a.url);
+}
+
+const defaults=[
+ ["SITES","GOOGLE","https://www.google.com","fa-brands fa-google"],["SITES","YOUTUBE","https://www.youtube.com","fa-brands fa-youtube"],["SITES","GITHUB","https://github.com","fa-brands fa-github"],
+ ["IA","CLAUDE","https://claude.ai","fa-solid fa-brain"],["IA","CHATGPT","https://chatgpt.com","fa-solid fa-robot"],["IA","GEMINI","https://gemini.google.com","fa-solid fa-wand-magic-sparkles"],
+ ["COMPRAS","AMAZON","https://www.amazon.com.br","fa-brands fa-amazon"],["COMPRAS","MERCADO LIVRE","https://www.mercadolivre.com.br","fa-solid fa-cart-shopping"],
+ ["REDES SOCIAIS","INSTAGRAM","https://www.instagram.com","fa-brands fa-instagram"],["REDES SOCIAIS","X","https://x.com","fa-brands fa-x-twitter"]
+];
+const mkDefaults=()=>sanitize(defaults.map(([category,name,url,icon])=>({category,name,url,icon})));
+
+const saved=load('dashboard_apps',null);
+let apps=Array.isArray(saved)?sanitize(saved):mkDefaults();
+let order=load('dashboard_cat_order',[]);if(!Array.isArray(order))order=[];
+let collapsed=load('dashboard_collapsed',[]);if(!Array.isArray(collapsed))collapsed=[];
+
+/* Salva localmente e sincroniza */
+function save(skipCloud=false){
+  store('dashboard_apps',apps);
+  store('dashboard_cat_order',order);
+  store('dashboard_collapsed',collapsed);
+  raw('dashboard_updated_at',Date.now().toString());
+  render();
+  if(!skipCloud) pushGitHubDebounced();
+}
+
+let tt;
+function toast(msg,undo){
+  const t=$('#toast');t.innerHTML='<span>'+esc(msg)+'</span>'+(undo?'<button id="undo">Desfazer</button>':'');t.classList.add('show');
+  if(undo)$('#undo').onclick=()=>{undo();t.classList.remove('show')};
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),6000);
+}
+function snapshot(){const a=JSON.stringify(apps),o=[...order];return()=>{apps=JSON.parse(a);order=o;save()}}
+
+/* ---------- Render ---------- */
+function card(a,cls){
+  let host='';try{host=new URL(a.url).hostname}catch(e){}
+  const sub=a.url.replace(/^https?:\/\//,'').replace(/\/$/,'').toLowerCase();
+  const ic=a.useFavicon&&host?`<img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128" alt="" loading="lazy">`:`<i class="${esc(a.icon)}"></i>`;
+  return `<div class="card${cls}" draggable="true" data-id="${a.id}"><a class="link" href="${esc(a.url||'#')}"${newTab()?' target="_blank" rel="noopener noreferrer"':''} draggable="false"><span class="ico">${ic}</span><span class="txt"><b>${esc(a.name)}</b><small>${esc(sub)}</small></span></a><span class="acts"><button class="ib" data-act="edit" title="Editar" aria-label="Editar ${esc(a.name)}"><i class="fa-solid fa-pen"></i></button><button class="ib del" data-act="del" title="Excluir" aria-label="Excluir ${esc(a.name)}"><i class="fa-solid fa-trash-can"></i></button></span></div>`;
+}
+
+function render(){
+  const q=$('#q').value.trim().toLowerCase(),cats={};
+  apps.forEach(a=>{if(!q||(a.name+' '+a.url).toLowerCase().includes(q))(cats[a.category]=cats[a.category]||[]).push(a)});
+  order=order.filter(c=>apps.some(a=>a.category===c));
+  apps.forEach(a=>{if(!order.includes(a.category))order.push(a.category)});
+  let first=!!q;
+  const html=order.filter(c=>cats[c]).map(c=>{
+    const isCol=collapsed.includes(c);
+    return `<section class="col${isCol?' collapsed':''}" draggable="true" data-cat="${esc(c)}"><div class="ch"><div class="ch-title" data-act="toggle-cat"><i class="fa-solid fa-chevron-down ch-arrow"></i><h2>${esc(c)}</h2></div><button class="ib" data-act="add" title="Adicionar nesta categoria" aria-label="Adicionar em ${esc(c)}"><i class="fa-solid fa-plus"></i></button></div><div class="body">${cats[c].map(a=>{const h=first?' hit':'';first=false;return card(a,h)}).join('')}</div></section>`;
+  }).join('');
+  $('#grid').innerHTML=html||`<p class="empty">${q?'Nenhum link encontrado. Pressione Enter para pesquisar.':'Nenhum link ainda. Clique em Adicionar link.'}</p>`;
+  $('#cats').innerHTML=order.map(c=>`<option value="${esc(c)}">`).join('');
+}
+
+/* ---------- Ações na grade ---------- */
+const grid=$('#grid');
+grid.addEventListener('click',e=>{
+  const b=e.target.closest('[data-act]');if(!b)return;
+  const col=b.closest('.col');
+  const card=b.closest('.card');
+  if(b.dataset.act==='toggle-cat'&&col){
+    const cat=col.dataset.cat;
+    if(collapsed.includes(cat))collapsed=collapsed.filter(x=>x!==cat);else collapsed.push(cat);
+    store('dashboard_collapsed',collapsed);col.classList.toggle('collapsed');
+    return;
+  }
+  if(b.dataset.act==='add')openItem(null,col.dataset.cat);
+  if(b.dataset.act==='edit')openItem(card.dataset.id);
+  if(b.dataset.act==='del'){const undo=snapshot();apps=apps.filter(a=>a.id!==card.dataset.id);save();toast('Link removido',undo)}
+});
+grid.addEventListener('error',e=>{if(e.target.tagName==='IMG')e.target.replaceWith(Object.assign(document.createElement('i'),{className:'fa-solid fa-globe'}))},true);
+
+/* ---------- Arrastar e soltar ---------- */
+let drag=null;
+const clearOver=()=>grid.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));
+grid.addEventListener('dragstart',e=>{
+  const c=e.target.closest('.card'),k=e.target.closest('.col');
+  if(c)drag={t:'c',id:c.dataset.id};else if(k)drag={t:'k',id:k.dataset.cat};else return;
+  (c||k).classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','x');
+});
+grid.addEventListener('dragover',e=>{
+  if(!drag)return;e.preventDefault();clearOver();
+  const t=drag.t==='c'?(e.target.closest('.card')||e.target.closest('.col')):e.target.closest('.col');
+  if(t)t.classList.add('over');
+});
+grid.addEventListener('drop',e=>{
+  if(!drag)return;e.preventDefault();
+  const tc=e.target.closest('.card'),col=e.target.closest('.col');
+  if(drag.t==='c'){
+    const from=apps.findIndex(a=>a.id===drag.id),[m]=apps.splice(from,1);
+    if(tc){const ti=apps.findIndex(a=>a.id===tc.dataset.id);m.category=apps[ti].category;apps.splice(ti,0,m)}
+    else if(col){m.category=col.dataset.cat;apps.push(m)}
+    else apps.splice(from,0,m);
+  }else if(col&&col.dataset.cat!==drag.id){
+    const f=order.indexOf(drag.id),t=order.indexOf(col.dataset.cat);order.splice(f,1);order.splice(t,0,drag.id);
+  }
+  drag=null;save();
+});
+grid.addEventListener('dragend',()=>{drag=null;render()});
+
+/* ---------- Modais & Abas ---------- */
+document.querySelectorAll('dialog').forEach(d=>d.addEventListener('click',e=>{if(e.target===d)d.close()}));
+document.addEventListener('click',e=>{const c=e.target.closest('[data-close]');if(c)c.closest('dialog').close()});
+const syncType=()=>{$('#f-icon-wrap').hidden=$('#f-type').value!=='fa'};
+$('#f-type').onchange=syncType;
+function openItem(id,cat){
+  const a=apps.find(x=>x.id===id);
+  $('#t-item').textContent=a?'Editar link':'Adicionar link';
+  $('#f-id').value=a?a.id:'';$('#f-cat').value=a?a.category:(cat||'');
+  $('#f-name').value=a?a.name:'';$('#f-url').value=a?a.url:'';
+  $('#f-type').value=!a||a.useFavicon?'favicon':'fa';$('#f-icon').value=a?a.icon:'fa-solid fa-globe';
+  syncType();$('#m-item').showModal();
+  (a||cat?$('#f-name'):$('#f-cat')).focus();
+}
+$('#b-add').onclick=()=>openItem();
+$('#f-item').onsubmit=e=>{
+  e.preventDefault();
+  const id=$('#f-id').value,category=$('#f-cat').value.trim().toUpperCase()||'GERAL',name=$('#f-name').value.trim(),url=normalizeUrl($('#f-url').value);
+  if(!name||!url){toast('Endereço inválido. Confira a URL.');return}
+  const data={category,name,url,useFavicon:$('#f-type').value==='favicon',icon:$('#f-icon').value.trim()||'fa-solid fa-globe'};
+  if(id)Object.assign(apps.find(a=>a.id===id),data);else apps.push({id:uid(),...data});
+  $('#m-item').close();save();
+};
+
+/* Abas de Configurações */
+$$('.tab-btn').forEach(b=>b.onclick=()=>{
+  $$('.tab-btn').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on');
+  $$('.tab-content').forEach(c=>c.hidden=c.id!==b.dataset.tab);
+});
+
+/* ---------- Tema & Estilo ---------- */
+const COLORS=['#84cc16','#3b82f6','#ec4899','#a855f7','#f97316','#ef4444','#06b6d4'];
+COLORS.forEach(c=>{const b=document.createElement('button');b.className='sw';b.dataset.c=c;b.style.background=c;b.setAttribute('aria-label','Cor '+c);b.onclick=()=>setColor(c);$('#c-custom').before(b)});
+$('#c-custom').oninput=e=>setColor(e.target.value);
+$$('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+$$('[data-open]').forEach(b=>b.onclick=()=>setOpen(b.dataset.open==='new'));
+$$('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+
+function setOpen(n,s=true){if(s)raw('dashboard_newtab',n?'1':'0');syncSet();render()}
+function setView(v,s=true){
+  if(s)raw('dashboard_view_mode',v);
+  document.documentElement.classList.toggle('compact-mode',v==='compact');
+  syncSet();
+}
+function setColor(h,s=true){
+  if(!/^#[0-9a-f]{6}$/i.test(h))return;
+  document.documentElement.style.setProperty('--primary',h);
+  document.querySelector('meta[name="theme-color"]').setAttribute('content',h);
+  if(s)raw('dashboard_primary',h);syncSet();
+}
+function setMode(m,s=true){
+  document.documentElement.classList.toggle('light',m==='light');
+  if(s)raw('dashboard_mode',m);syncSet();
+}
+function syncSet(){
+  const m=document.documentElement.classList.contains('light')?'light':'dark',
+        v=document.documentElement.classList.contains('compact-mode')?'compact':'cards',
+        c=getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+  $$('[data-mode]').forEach(b=>b.classList.toggle('on',b.dataset.mode===m));
+  $$('[data-view]').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+  $$('.sw').forEach(b=>b.classList.toggle('on',b.dataset.c===c));
+  $$('[data-open]').forEach(b=>b.classList.toggle('on',(b.dataset.open==='new')===newTab()));
+  $('#c-custom').value=/^#[0-9a-f]{6}$/i.test(c)?c:'#84cc16';
+  $('#gh-owner').value=raw('gh_owner')||'';
+  $('#gh-repo').value=raw('gh_repo')||'';
+  $('#gh-branch').value=raw('gh_branch')||'main';
+  $('#gh-token').value=raw('gh_token')||'';
+}
+$('#b-set').onclick=()=>{syncSet();$('#m-set').showModal()};
+$('#b-cloud').onclick=()=>{
+  syncSet();
+  $$('.tab-btn').forEach(x=>x.classList.toggle('on',x.dataset.tab==='tab-github'));
+  $$('.tab-content').forEach(c=>c.hidden=c.id!=='tab-github');
+  $('#m-set').showModal();
+};
+
+/* ---------- Backup Manual ---------- */
+$('#b-exp').onclick=()=>{
+  const data=buildPayload();
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),download:'links.json'});
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+$('#b-imp').onclick=()=>$('#file').click();
+$('#file').onchange=async e=>{
+  const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{
+    const d=JSON.parse(await f.text()),list=Array.isArray(d)?d:d.apps;
+    if(!Array.isArray(list))throw 0;
+    const clean=sanitize(list,true);if(!clean.length)throw 0;
+    const undo=snapshot();
+    applyPayload(d);
+    $('#m-set').close();save();toast(clean.length+' links importados',undo);
+  }catch(err){toast('Arquivo inválido. Use um JSON exportado por aqui.')}
+};
+$('#b-reset').onclick=()=>{
+  if(!confirm('Restaurar o padrão? Seus links locais serão apagados.'))return;
+  ['dashboard_apps','dashboard_cat_order','dashboard_collapsed','dashboard_primary','dashboard_mode','dashboard_view_mode','dashboard_newtab','dashboard_notes'].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}});
+  apps=mkDefaults();order=[];collapsed=[];document.documentElement.style.removeProperty('--primary');setMode('dark',false);setView('cards',false);
+  $('#quick-notes').value='';$('#m-set').close();render();
+};
+
+/* ---------- GitHub API Sync ---------- */
+function buildPayload(){
+  return {
+    versao: 3,
+    apps,
+    order,
+    collapsed,
+    notes: $('#quick-notes') ? $('#quick-notes').value : (raw('dashboard_notes')||''),
+    primary: raw('dashboard_primary')||'#84cc16',
+    mode: raw('dashboard_mode')||'dark',
+    viewMode: raw('dashboard_view_mode')||'cards',
+    novaAba: newTab(),
+    updatedAt: Date.now()
+  };
+}
+
+function applyPayload(d){
+  if(Array.isArray(d.apps)) apps=sanitize(d.apps);
+  if(Array.isArray(d.order)) order=d.order;
+  if(Array.isArray(d.collapsed)) collapsed=d.collapsed;
+  if(typeof d.notes==='string'){raw('dashboard_notes',d.notes);if($('#quick-notes'))$('#quick-notes').value=d.notes}
+  if(d.primary) setColor(d.primary,true);
+  if(d.mode) setMode(d.mode,true);
+  if(d.viewMode) setView(d.viewMode,true);
+  if('novaAba' in d) raw('dashboard_newtab',d.novaAba?'1':'0');
+  save(true);
+}
+
+function updateGhStatus(status,label){
+  const btn=$('#b-cloud'),lbl=$('#cloud-label'),ico=btn.querySelector('i');
+  btn.className='btn cloud-btn '+status;
+  lbl.textContent=label;
+  ico.className=status==='syncing'?'fa-solid fa-arrows-rotate':status==='synced'?'fa-solid fa-cloud-check':status==='error'?'fa-solid fa-triangle-exclamation':'fa-brands fa-github';
+}
+
+let ghTimeout;
+function pushGitHubDebounced(){
+  clearTimeout(ghTimeout);
+  ghTimeout=setTimeout(pushGitHub,1200);
+}
+
+async function pushGitHub(){
+  const owner=(raw('gh_owner')||'').trim(),
+        repo=(raw('gh_repo')||'').trim(),
+        branch=(raw('gh_branch')||'main').trim(),
+        token=(raw('gh_token')||'').trim();
+  if(!owner||!repo||!token){updateGhStatus('','GitHub');return}
+
+  updateGhStatus('syncing','Salvando...');
+  try{
+    const path='links.json';
+    const url=`https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
+    let sha=null;
+    const getRes=await fetch(url,{
+      headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'}
+    });
+    if(getRes.status===200){
+      const data=await getRes.json();
+      sha=data.sha;
+    }
+    const payload=buildPayload();
+    const putRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`,{
+      method:'PUT',
+      headers:{
+        'Authorization':`Bearer ${token}`,
+        'Accept':'application/vnd.github+json',
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        message:'Atualizar links via SpeedDial Web [skip ci]',
+        content:toBase64(JSON.stringify(payload,null,2)),
+        branch,
+        ...(sha?{sha}:{})
+      })
+    });
+    if(!putRes.ok)throw new Error('Falha no upload para o GitHub');
+    updateGhStatus('synced','GitHub OK');
+  }catch(err){
+    console.error('Erro GitHub Sync:',err);
+    updateGhStatus('error','Erro sync');
+  }
+}
+
+async function pullGitHub(manual=false){
+  const owner=(raw('gh_owner')||'').trim(),
+        repo=(raw('gh_repo')||'').trim(),
+        branch=(raw('gh_branch')||'main').trim(),
+        token=(raw('gh_token')||'').trim();
+
+  // Se não configurou token mas está no GitHub Pages, tenta ler links.json estático local
+  if(!token||!owner||!repo){
+    try{
+      const res=await fetch('./links.json?t='+Date.now());
+      if(res.ok){
+        const d=await res.json();
+        // Só aplica se o arquivo do repositório for mais recente que o local
+        const localTime=parseInt(raw('dashboard_updated_at')||'0',10);
+        if(!localTime||(d.updatedAt&&d.updatedAt>localTime)||manual){
+          applyPayload(d);
+          if(manual)toast('Dados carregados do links.json');
+        }
+      }
+    }catch(e){}
+    updateGhStatus('','GitHub');
+    return;
+  }
+
+  updateGhStatus('syncing','Baixando...');
+  try{
+    const url=`https://api.github.com/repos/${owner}/${repo}/contents/links.json?ref=${branch}&t=${Date.now()}`;
+    const res=await fetch(url,{
+      headers:{'Authorization':`Bearer ${token}`,'Accept':'application/vnd.github+json'}
+    });
+    if(!res.ok)throw new Error('Erro ao buscar links.json');
+    const data=await res.json();
+    const jsonStr=fromBase64(data.content);
+    const parsed=JSON.parse(jsonStr);
+    applyPayload(parsed);
+    updateGhStatus('synced','GitHub OK');
+    if(manual)toast('Links atualizados do GitHub com sucesso!');
+  }catch(err){
+    console.error(err);
+    updateGhStatus('error','Erro sync');
+    if(manual)toast('Não foi possível baixar do GitHub. Confira suas configurações.');
+  }
+}
+
+$('#b-gh-save').onclick=()=>{
+  raw('gh_owner',$('#gh-owner').value.trim());
+  raw('gh_repo',$('#gh-repo').value.trim());
+  raw('gh_branch',$('#gh-branch').value.trim()||'main');
+  raw('gh_token',$('#gh-token').value.trim());
+  pushGitHub();
+  toast('Configurações salvas. Sincronizando com GitHub...');
+};
+$('#b-gh-pull').onclick=()=>pullGitHub(true);
+
+/* Inicialização de dados */
+pullGitHub(false);
+
+/* ---------- Notas Rápidas ---------- */
+const notesWrap=$('#notes-body'),notesToggle=$('#notes-toggle'),notesText=$('#quick-notes'),notesArrow=$('#notes-arrow');
+notesText.value=raw('dashboard_notes')||'';
+notesToggle.onclick=()=>{
+  const isHidden=notesWrap.hidden;
+  notesWrap.hidden=!isHidden;
+  notesArrow.style.transform=isHidden?'rotate(180deg)':'rotate(0deg)';
+};
+notesText.addEventListener('input',()=>{
+  raw('dashboard_notes',notesText.value);
+  pushGitHubDebounced();
+});
+
+/* ---------- Bangs de Busca & Sugestões ---------- */
+const BANGS={
+  '!y': {name:'YouTube', url:'https://www.youtube.com/results?search_query='},
+  '!gh':{name:'GitHub', url:'https://github.com/search?q='},
+  '!c': {name:'ChatGPT', url:'https://chatgpt.com/?q='},
+  '!w': {name:'Wikipedia', url:'https://pt.wikipedia.org/w/index.php?search='},
+  '!m': {name:'Google Maps', url:'https://www.google.com/maps/search/'},
+  '!a': {name:'Amazon', url:'https://www.amazon.com.br/s?k='},
+  '!r': {name:'Reddit', url:'https://www.reddit.com/search/?q='}
+};
+
+const SEARCH='https://www.google.com/search?q=';
+const go=url=>{if(newTab())window.open(url,'_blank','noopener');else location.href=url};
+const sug=$('#sug');let sugItems=[],sugIdx=-1,sugTimer,sugSeq=0;
+function sugClose(){sug.hidden=true;sugItems=[];sugIdx=-1;$('#q').setAttribute('aria-expanded','false')}
+function sugMark(){[...sug.children].forEach((li,i)=>li.classList.toggle('on',i===sugIdx))}
+function sugShow(list){
+  if(!list.length){sugClose();return}
+  sugItems=list;sugIdx=-1;
+  sug.innerHTML=list.map((t,i)=>`<li role="option" data-i="${i}"><i class="fa-solid fa-magnifying-glass"></i><span>${esc(t.label||t)}</span></li>`).join('');
+  sug.hidden=false;$('#q').setAttribute('aria-expanded','true');
+}
+
+function resolveSearch(v){
+  const parts=v.trim().split(/\s+/);
+  const bang=parts[0].toLowerCase();
+  if(BANGS[bang]){
+    const query=parts.slice(1).join(' ');
+    return query?BANGS[bang].url+encodeURIComponent(query):BANGS[bang].url.split('?')[0];
+  }
+  const hit=$('.card.hit a');
+  if(hit)return hit.href;
+  if(/^\S+\.[a-z]{2,}(\/\S*)?$/i.test(v))return normalizeUrl(v);
+  return SEARCH+encodeURIComponent(v);
+}
+
+$('#q').addEventListener('input',e=>{
+  const v=$('#q').value.trim();
+  render();
+  clearTimeout(sugTimer);
+  if(!v){sugClose();return}
+
+  // Sugestão de bangs se começar com !
+  if(v.startsWith('!')){
+    const matchBang=Object.entries(BANGS).filter(([k])=>k.startsWith(v.split(' ')[0].toLowerCase()));
+    if(matchBang.length&&!v.includes(' ')){
+      sugShow(matchBang.map(([k,b])=>({label:`${k} — Pesquisar no ${b.name}`,bangUrl:b.url})));
+      return;
+    }
+  }
+
+  sugTimer=setTimeout(async()=>{
+    const l=await fetchSug(v);
+    if($('#q').value.trim()===v)sugShow(l.slice(0,8));
+  },150);
+});
+
+$('#q').addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.target.value='';e.target.blur();render()}
+  if(e.key==='Enter'){
+    const v=e.target.value.trim();if(!v)return;
+    const pick=sugIdx>=0?sugItems[sugIdx]:null;
+    const url=pick?(typeof pick==='object'&&pick.bangUrl?pick.bangUrl:SEARCH+encodeURIComponent(pick.label||pick)):resolveSearch(v);
+    go(url);
+  }
+  if((e.key==='ArrowDown'||e.key==='ArrowUp')&&!sug.hidden&&sugItems.length){
+    e.preventDefault();const n=sugItems.length;
+    sugIdx=e.key==='ArrowDown'?(sugIdx+1)%n:(sugIdx<0?n-1:sugIdx-1);sugMark();
+  }
+});
+
+function fetchSug(q){
+  return new Promise(res=>{
+    const cb='__sug'+(++sugSeq),s=document.createElement('script');
+    const done=v=>{clearTimeout(t);delete window[cb];s.remove();res(v)};
+    const t=setTimeout(()=>done([]),3000);
+    window[cb]=d=>done(Array.isArray(d)&&Array.isArray(d[1])?d[1].map(x=>Array.isArray(x)?x[0]:x).filter(x=>typeof x==='string'):[]);
+    s.onerror=()=>done([]);
+    s.src='https://suggestqueries.google.com/complete/search?client=youtube&hl=pt-BR&q='+encodeURIComponent(q)+'&jsonp='+cb;
+    document.head.appendChild(s);
+  });
+}
+$('#q').addEventListener('blur',()=>setTimeout(sugClose,200));
+sug.addEventListener('mousedown',e=>e.preventDefault());
+sug.addEventListener('click',e=>{
+  const li=e.target.closest('li');
+  if(!li)return;
+  const pick=sugItems[li.dataset.i];
+  go(pick&&pick.bangUrl?pick.bangUrl:SEARCH+encodeURIComponent(pick.label||pick));
+});
+
+/* Atalhos de Teclado */
+addEventListener('keydown',e=>{
+  if(e.altKey && !isNaN(e.key) && parseInt(e.key)>=1 && parseInt(e.key)<=9){
+    const idx=parseInt(e.key)-1;
+    if(apps[idx]&&apps[idx].url){go(apps[idx].url)}
+    return;
+  }
+  if(e.key!=='/'||e.metaKey||e.ctrlKey||e.altKey||document.querySelector('dialog[open]'))return;
+  if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;
+  e.preventDefault();$('#q').focus();
+});
+
+/* ---------- Data, Hora & Clima ---------- */
+function tick(){
+  const n=new Date(),h=n.getHours();
+  $('#date').textContent=n.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+  $('#clock').textContent=[h,n.getMinutes(),n.getSeconds()].map(x=>String(x).padStart(2,'0')).join(':');
+  $('#hello').textContent=h>=12&&h<18?'Boa tarde!':(h>=18||h<5)?'Boa noite!':'Bom dia!';
+}
+tick();setInterval(tick,1000);
+
+async function loadWeather(){
+  const wEl=$('#weather');
+  try{
+    const cached=load('dashboard_weather_cache',null);
+    if(cached&&Date.now()-cached.time<1800000){ // 30min cache
+      renderWeather(cached.data);return;
+    }
+    const locRes=await fetch('https://get.geojs.io/v1/ip/geo.json');
+    const loc=await locRes.json();
+    const wRes=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.latitude}&longitude=${loc.longitude}&current=temperature_2m,weather_code&timezone=auto`);
+    const wData=await wRes.json();
+    const weatherObj={temp:Math.round(wData.current.temperature_2m),code:wData.current.weather_code,city:loc.city||''};
+    store('dashboard_weather_cache',{time:Date.now(),data:weatherObj});
+    renderWeather(weatherObj);
+  }catch(e){
+    wEl.hidden=true;
+  }
+}
+function renderWeather(w){
+  const wEl=$('#weather');
+  const icons={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'❄️',95:'⛈️'};
+  const ico=icons[w.code]||'🌤️';
+  wEl.innerHTML=`${ico} ${w.temp}°C${w.city?' · '+esc(w.city):''}`;
+  wEl.hidden=false;
+}
+$('#b-weather-toggle').onclick=()=>{
+  localStorage.removeItem('dashboard_weather_cache');
+  loadWeather();
+  toast('Atualizando clima local...');
+};
+loadWeather();
+
+syncSet();render();
+function focusSearch(){if(matchMedia('(hover:none)').matches)return;const q=$('#q');q.focus();q.select()}
+focusSearch();
+addEventListener('pageshow',e=>{if(e.persisted){sugClose();focusSearch()}});
+</script>
+</body>
+</html>
