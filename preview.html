@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Showcase de Layouts — SpeedDial</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root{
+  --bg-deep:#090a0f;
+  --bg-surface:#12141c;
+  --bg-elevated:#1a1d28;
+  --border-subtle:rgba(255,255,255,0.08);
+  --border-glow:rgba(255,255,255,0.15);
+  --text-main:#f1f5f9;
+  --text-muted:#94a3b8;
+  --text-dim:#64748b;
+  --accent:#38bdf8;
+  --accent-glow:rgba(56,189,248,0.25);
+  --card-glass:rgba(18,20,28,0.75);
+}
+
+.light-theme{
+  --bg-deep:#f8fafc;
+  --bg-surface:#ffffff;
+  --bg-elevated:#f1f5f9;
+  --border-subtle:rgba(0,0,0,0.08);
+  --border-glow:rgba(0,0,0,0.15);
+  --text-main:#0f172a;
+  --text-muted:#475569;
+  --text-dim:#94a3b8;
+  --accent:#0284c7;
+  --accent-glow:rgba(2,132,199,0.2);
+  --card-glass:rgba(255,255,255,0.85);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
+  background:var(--bg-deep);
+  color:var(--text-main);
+  min-height:100vh;
+  transition:background .3s,color .3s;
+  overflow-x:hidden;
+}
+
+/* ==================== BARRA FLUTUANTE DE ESCOLHA ==================== */
+#showcase-bar{
+  position:fixed;
+  top:1rem;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:9999;
+  background:rgba(18,20,28,0.88);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border-glow);
+  padding:.4rem .55rem;
+  border-radius:100px;
+  display:flex;
+  align-items:center;
+  gap:.35rem;
+  box-shadow:0 20px 40px rgba(0,0,0,0.45);
+}
+.light-theme #showcase-bar{
+  background:rgba(255,255,255,0.9);
+  box-shadow:0 12px 30px rgba(0,0,0,0.12);
+}
+.model-btn{
+  border:none;
+  background:transparent;
+  color:var(--text-muted);
+  font:inherit;
+  font-size:.82rem;
+  font-weight:600;
+  padding:.45rem .85rem;
+  border-radius:100px;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  transition:all .2s cubic-bezier(0.16,1,0.3,1);
+  white-space:nowrap;
+}
+.model-btn:hover{
+  color:var(--text-main);
+  background:rgba(255,255,255,0.06);
+}
+.light-theme .model-btn:hover{
+  background:rgba(0,0,0,0.05);
+}
+.model-btn.active{
+  background:var(--accent);
+  color:#000;
+  box-shadow:0 0 20px var(--accent-glow);
+  font-weight:700;
+}
+.bar-divider{
+  width:1px;
+  height:1.2rem;
+  background:var(--border-subtle);
+  margin:0 .2rem;
+}
+.icon-action-btn{
+  border:none;
+  background:transparent;
+  color:var(--text-muted);
+  width:2.1rem;
+  height:2.1rem;
+  border-radius:50%;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .15s;
+}
+.icon-action-btn:hover{
+  color:var(--text-main);
+  background:rgba(255,255,255,0.08);
+}
+.light-theme .icon-action-btn:hover{
+  background:rgba(0,0,0,0.06);
+}
+
+.model-view{
+  display:none;
+  padding-top:5.5rem;
+  padding-bottom:3rem;
+  min-height:100vh;
+  animation:fadeIn .3s cubic-bezier(0.16,1,0.3,1);
+}
+.model-view.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ==================== 1. MODELO: BENTO GRID ==================== */
+#view-bento{max-width:82rem;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem}
+.bento-header{
+  display:grid;
+  grid-template-columns:1.8fr 1.2fr 1fr;
+  gap:1.25rem;
+  margin-bottom:1.5rem;
+}
+@media(max-width:960px){.bento-header{grid-template-columns:1fr}}
+
+.bento-card{
+  background:var(--card-glass);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid var(--border-subtle);
+  border-radius:1.5rem;
+  padding:1.5rem;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .25s,transform .2s;
+}
+.bento-card:hover{
+  border-color:var(--border-glow);
+}
+.bento-clock-time{
+  font-size:3.2rem;
+  font-weight:800;
+  letter-spacing:-0.04em;
+  background:linear-gradient(135deg,var(--text-main) 30%,var(--accent));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  line-height:1;
+  margin-bottom:.5rem;
+}
+.bento-clock-date{
+  font-size:.85rem;
+  color:var(--text-muted);
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.bento-badge-row{
+  display:flex;
+  gap:.6rem;
+  margin-top:1rem;
+}
+.bento-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border-subtle);
+  padding:.35rem .75rem;
+  border-radius:100px;
+  font-size:.78rem;
+  font-weight:600;
+}
+.bento-search-box{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.bento-search-input{
+  width:100%;
+  padding:1rem 1.25rem;
+  border-radius:1rem;
+  border:1px solid var(--border-subtle);
+  background:rgba(255,255,255,0.03);
+  color:var(--text-main);
+  font:inherit;
+  font-size:.95rem;
+  transition:all .2s;
+}
+.bento-search-input:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 20px var(--accent-glow);
+}
+.bento-notes-textarea{
+  width:100%;
+  height:4.5rem;
+  background:transparent;
+  border:none;
+  color:var(--text-main);
+  font:inherit;
+  font-size:.82rem;
+  resize:none;
+  margin-top:.5rem;
+}
+.bento-notes-textarea:focus{outline:none}
+
+.bento-grid-categories{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:1.25rem;
+}
+.bento-cat-title{
+  font-size:.8rem;
+  letter-spacing:.12em;
+  font-weight:700;
+  color:var(--accent);
+  text-transform:uppercase;
+  margin-bottom:1rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.bento-link-item{
+  display:flex;
+  align-items:center;
+  gap:.85rem;
+  padding:.65rem .8rem;
+  border-radius:1rem;
+  background:rgba(255,255,255,0.02);
+  border:1px solid transparent;
+  color:inherit;
+  text-decoration:none;
+  margin-bottom:.5rem;
+  transition:all .2s cubic-bezier(0.16,1,0.3,1);
+}
+.bento-link-item:hover{
+  background:var(--bg-elevated);
+  border-color:var(--border-glow);
+  transform:translateX(4px);
+}
+.bento-icon{
+  width:2.2rem;
+  height:2.2rem;
+  border-radius:.75rem;
+  background:rgba(255,255,255,0.05);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.bento-icon img{width:1.2rem;height:1.2rem;border-radius:4px}
+.bento-link-txt b{font-size:.85rem;font-weight:600;display:block}
+.bento-link-txt small{font-size:.7rem;color:var(--text-dim);display:block}
+
+/* ==================== 2. MODELO: RAYCAST / ARC ==================== */
+#view-raycast{max-width:76rem;margin:0 auto;padding-left:1.5rem;padding-right:1.5rem}
+.ray-hero{
+  text-align:center;
+  padding:2rem 0 2.5rem;
+}
+.ray-time{
+  font-size:2.8rem;
+  font-weight:300;
+  letter-spacing:-0.03em;
+  margin-bottom:.3rem;
+}
+.ray-sub{
+  color:var(--text-muted);
+  font-size:.85rem;
+  margin-bottom:2rem;
+}
+.ray-spotlight{
+  max-width:44rem;
+  margin:0 auto 2.5rem;
+  position:relative;
+}
+.ray-spot-input{
+  width:100%;
+  padding:1.15rem 1.5rem 1.15rem 3.4rem;
+  border-radius:1.25rem;
+  background:var(--bg-surface);
+  border:1px solid var(--border-glow);
+  color:var(--text-main);
+  font:inherit;
+  font-size:1.05rem;
+  box-shadow:0 24px 50px rgba(0,0,0,0.35);
+  transition:all .25s;
+}
+.ray-spot-input:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:0 0 35px var(--accent-glow);
+}
+.ray-spot-icon{
+  position:absolute;
+  left:1.25rem;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--accent);
+  font-size:1.1rem;
+}
+.ray-spot-kbd{
+  position:absolute;
+  right:1.25rem;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:.75rem;
+  color:var(--text-dim);
+  background:rgba(255,255,255,0.06);
+  padding:.2rem .5rem;
+  border-radius:.4rem;
+  font-family:'JetBrains Mono',monospace;
+}
+
+.ray-tabs{
+  display:flex;
+  justify-content:center;
+  gap:.5rem;
+  margin-bottom:2rem;
+  flex-wrap:wrap;
+}
+.ray-pill{
+  border:1px solid var(--border-subtle);
+  background:var(--bg-surface);
+  color:var(--text-muted);
+  padding:.45rem 1rem;
+  border-radius:100px;
+  font:inherit;
+  font-size:.82rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+}
+.ray-pill:hover{
+  border-color:var(--border-glow);
+  color:var(--text-main);
+}
+.ray-pill.active{
+  background:var(--text-main);
+  color:var(--bg-deep);
+  border-color:transparent;
+}
+
+.ray-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(210px,1fr));
+  gap:1rem;
+}
+.ray-card{
+  background:var(--bg-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:1rem;
+  padding:1rem;
+  display:flex;
+  align-items:center;
+  gap:.85rem;
+  color:inherit;
+  text-decoration:none;
+  transition:all .2s cubic-bezier(0.16,1,0.3,1);
+}
+.ray-card:hover{
+  border-color:var(--accent);
+  transform:translateY(-3px);
+  box-shadow:0 12px 24px rgba(0,0,0,0.25);
+}
+.ray-card img{width:1.8rem;height:1.8rem;border-radius:.5rem;object-fit:contain}
+.ray-card i{font-size:1.6rem;color:var(--accent)}
+.ray-card-info b{display:block;font-size:.85rem;font-weight:600}
+.ray-card-info small{display:block;font-size:.7rem;color:var(--text-dim)}
+
+/* ==================== 3. MODELO: MACOS LAUNCHPAD GLASS ==================== */
+#view-macos{
+  background:url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=2000&q=80') center/cover fixed no-repeat;
+  position:relative;
+  min-height:100vh;
+}
+#view-macos::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+}
+.macos-content{
+  position:relative;
+  z-index:1;
+  max-width:76rem;
+  margin:0 auto;
+  padding:1rem 2rem 7rem;
+}
+.macos-menu-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(24px);
+  -webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:1rem;
+  padding:.6rem 1.25rem;
+  font-size:.85rem;
+  font-weight:600;
+  margin-bottom:3rem;
+  color:#fff;
+}
+.macos-menu-items{display:flex;gap:1.25rem}
+.macos-search-container{
+  max-width:32rem;
+  margin:0 auto 3rem;
+}
+.macos-search{
+  width:100%;
+  padding:.85rem 1.25rem;
+  border-radius:1rem;
+  background:rgba(0,0,0,0.35);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#fff;
+  font:inherit;
+  font-size:.95rem;
+  text-align:center;
+}
+.macos-search:focus{outline:none;border-color:var(--accent)}
+.macos-search::placeholder{color:rgba(255,255,255,0.6)}
+
+.macos-apps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(105px,1fr));
+  gap:2.5rem 1.5rem;
+  justify-items:center;
+}
+.macos-app-icon-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:.6rem;
+  color:#fff;
+  text-decoration:none;
+  cursor:pointer;
+  transition:transform .2s cubic-bezier(0.16,1,0.3,1);
+}
+.macos-app-icon-wrap:hover{
+  transform:scale(1.1);
+}
+.macos-squircle{
+  width:4.2rem;
+  height:4.2rem;
+  border-radius:1.2rem;
+  background:rgba(255,255,255,0.15);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.3);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 14px 28px rgba(0,0,0,0.35);
+}
+.macos-squircle img{width:2.2rem;height:2.2rem;border-radius:.6rem;object-fit:contain}
+.macos-squircle i{font-size:1.8rem;color:#fff}
+.macos-app-label{
+  font-size:.82rem;
+  font-weight:600;
+  text-shadow:0 2px 8px rgba(0,0,0,0.8);
+  text-align:center;
+  max-width:6.5rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.macos-dock{
+  position:fixed;
+  bottom:1.5rem;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(255,255,255,0.18);
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:1.5rem;
+  padding:.55rem .75rem;
+  display:flex;
+  gap:.85rem;
+  z-index:9000;
+  box-shadow:0 25px 50px rgba(0,0,0,0.5);
+}
+.macos-dock-icon{
+  width:3.2rem;
+  height:3.2rem;
+  border-radius:.9rem;
+  background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.3);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  transition:transform .15s;
+}
+.macos-dock-icon:hover{transform:translateY(-8px) scale(1.15)}
+.macos-dock-icon img{width:1.8rem;height:1.8rem;border-radius:.4rem}
+
+/* ==================== 4. MODELO: SIDEBAR DASHBOARD ==================== */
+#view-sidebar{padding-top:4rem}
+.sb-layout{
+  display:flex;
+  min-height:calc(100vh - 4rem);
+}
+.sb-sidebar{
+  width:16rem;
+  background:var(--bg-surface);
+  border-right:1px solid var(--border-subtle);
+  padding:1.5rem 1rem;
+  display:flex;
+  flex-direction:column;
+  gap:1.5rem;
+  flex-shrink:0;
+}
+.sb-brand{
+  display:flex;
+  align-items:center;
+  gap:.65rem;
+  font-size:1.05rem;
+  font-weight:700;
+  padding:0 .5rem;
+}
+.sb-nav{list-style:none}
+.sb-nav-item{
+  padding:.55rem .85rem;
+  border-radius:.6rem;
+  color:var(--text-muted);
+  font-size:.85rem;
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  margin-bottom:.25rem;
+  transition:all .15s;
+}
+.sb-nav-item:hover{
+  background:var(--bg-elevated);
+  color:var(--text-main);
+}
+.sb-nav-item.active{
+  background:var(--accent-glow);
+  color:var(--accent);
+}
+.sb-badge{
+  font-size:.7rem;
+  background:rgba(255,255,255,0.06);
+  padding:.15rem .45rem;
+  border-radius:100px;
+}
+.sb-sidebar-footer{
+  margin-top:auto;
+  background:var(--bg-elevated);
+  border:1px solid var(--border-subtle);
+  border-radius:.8rem;
+  padding:.75rem;
+}
+.sb-sidebar-footer h4{
+  font-size:.75rem;
+  color:var(--text-dim);
+  text-transform:uppercase;
+  margin-bottom:.4rem;
+}
+.sb-main{
+  flex:1;
+  padding:2rem 2.5rem;
+  overflow-y:auto;
+}
+.sb-top-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:2rem;
+  gap:1.5rem;
+}
+.sb-search{
+  width:min(28rem,100%);
+  padding:.7rem 1.1rem;
+  border-radius:.75rem;
+  background:var(--bg-surface);
+  border:1px solid var(--border-subtle);
+  color:var(--text-main);
+  font:inherit;
+  font-size:.9rem;
+}
+.sb-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:1rem;
+}
+.sb-card{
+  background:var(--bg-surface);
+  border:1px solid var(--border-subtle);
+  border-radius:.85rem;
+  padding:1rem;
+  display:flex;
+  align-items:center;
+  gap:.85rem;
+  color:inherit;
+  text-decoration:none;
+  transition:all .15s;
+}
+.sb-card:hover{
+  border-color:var(--accent);
+  background:var(--bg-elevated);
+}
+.sb-card img{width:1.6rem;height:1.6rem;border-radius:4px}
+.sb-card i{font-size:1.5rem;color:var(--accent)}
+</style>
+</head>
+<body>
+
+<!-- BARRA FLUTUANTE DE ESCOLHA DE MODELO -->
+<header id="showcase-bar">
+  <button class="model-btn active" data-target="view-bento">
+    <i class="fa-solid fa-shapes"></i> 1. Bento Grid
+  </button>
+  <button class="model-btn" data-target="view-raycast">
+    <i class="fa-solid fa-bolt-lightning"></i> 2. Raycast / Arc
+  </button>
+  <button class="model-btn" data-target="view-macos">
+    <i class="fa-brands fa-apple"></i> 3. macOS Glass
+  </button>
+  <button class="model-btn" data-target="view-sidebar">
+    <i class="fa-solid fa-table-columns"></i> 4. Sidebar Notion
+  </button>
+  <div class="bar-divider"></div>
+  <button class="icon-action-btn" id="btn-theme-toggle" title="Alternar Claro / Escuro">
+    <i class="fa-solid fa-sun"></i>
+  </button>
+  <a href="index.html" class="icon-action-btn" title="Voltar ao SpeedDial atual" style="text-decoration:none">
+    <i class="fa-solid fa-arrow-left"></i>
+  </a>
+</header>
+
+<!-- ==================== 1. MODELO: BENTO GRID ==================== -->
+<section id="view-bento" class="model-view active">
+  <div class="bento-header">
+    <div class="bento-card">
+      <div class="bento-clock-time" id="bento-clock">16:15</div>
+      <div class="bento-clock-date" id="bento-date">Segunda-feira, 9 de Novembro</div>
+      <div class="bento-badge-row">
+        <span class="bento-badge"><i class="fa-solid fa-sun" style="color:#f59e0b"></i> 26°C · São Paulo</span>
+        <span class="bento-badge"><i class="fa-solid fa-dollar-sign" style="color:#10b981"></i> USD R$ 5,74</span>
+      </div>
+    </div>
+    <div class="bento-card bento-search-box">
+      <div style="font-size:.78rem;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:.65rem">
+        <i class="fa-solid fa-magnifying-glass"></i> Busca Rápida
+      </div>
+      <input type="search" class="bento-search-input" placeholder="Pesquisar no Google, YouTube (!y), GitHub (!gh)...">
+    </div>
+    <div class="bento-card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:.78rem;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase">
+          <i class="fa-solid fa-pen-nib"></i> Notas Rápidas
+        </div>
+        <i class="fa-solid fa-ellipsis" style="color:var(--text-dim);cursor:pointer"></i>
+      </div>
+      <textarea class="bento-notes-textarea" placeholder="Rascunho rápido salvo automaticamente..."></textarea>
+    </div>
+  </div>
+
+  <div class="bento-grid-categories" id="bento-cats-target">
+    <!-- Renderizado dinamicamente -->
+  </div>
+</section>
+
+<!-- ==================== 2. MODELO: RAYCAST / ARC ==================== -->
+<section id="view-raycast" class="model-view">
+  <div class="ray-hero">
+    <div class="ray-time" id="ray-clock">16:15</div>
+    <div class="ray-sub">O que você gostaria de abrir agora?</div>
+    
+    <div class="ray-spotlight">
+      <i class="fa-solid fa-magnifying-glass ray-spot-icon"></i>
+      <input type="search" class="ray-spot-input" placeholder="Digite para buscar links, histórico ou Google...">
+      <span class="ray-spot-kbd">⌘ K</span>
+    </div>
+
+    <div class="ray-tabs" id="ray-filter-tabs">
+      <button class="ray-pill active" data-cat="all">Todos</button>
+      <button class="ray-pill" data-cat="SITES">Sites</button>
+      <button class="ray-pill" data-cat="IA">IA</button>
+      <button class="ray-pill" data-cat="TRABALHO">Trabalho</button>
+      <button class="ray-pill" data-cat="REDES SOCIAIS">Social</button>
+      <button class="ray-pill" data-cat="COMPRAS">Compras</button>
+      <button class="ray-pill" data-cat="DESENVOLVIMENTO">Dev</button>
+    </div>
+  </div>
+
+  <div class="ray-grid" id="ray-links-target">
+    <!-- Renderizado dinamicamente -->
+  </div>
+</section>
+
+<!-- ==================== 3. MODELO: MACOS LAUNCHPAD GLASS ==================== -->
+<section id="view-macos" class="model-view">
+  <div class="macos-content">
+    <div class="macos-menu-bar">
+      <div class="macos-menu-items">
+        <span><i class="fa-brands fa-apple"></i></span>
+        <span>SpeedDial</span>
+        <span style="opacity:.7">Favoritos</span>
+        <span style="opacity:.7">Histórico</span>
+      </div>
+      <div style="display:flex;gap:1.25rem;align-items:center">
+        <span>☀️ 26°C</span>
+        <span id="macos-clock">16:15</span>
+      </div>
+    </div>
+
+    <div class="macos-search-container">
+      <input type="search" class="macos-search" placeholder="Buscar aplicativo ou site...">
+    </div>
+
+    <div class="macos-apps-grid" id="macos-apps-target">
+      <!-- Renderizado dinamicamente -->
+    </div>
+  </div>
+
+  <div class="macos-dock" id="macos-dock-target">
+    <!-- Renderizado dinamicamente -->
+  </div>
+</section>
+
+<!-- ==================== 4. MODELO: SIDEBAR NOTION ==================== -->
+<section id="view-sidebar" class="model-view">
+  <div class="sb-layout">
+    <aside class="sb-sidebar">
+      <div class="sb-brand">
+        <div style="width:1.8rem;height:1.8rem;background:var(--accent);border-radius:.5rem;display:flex;align-items:center;justify-content:center;color:#000">
+          <i class="fa-solid fa-bolt" style="font-size:.9rem"></i>
+        </div>
+        <span>SpeedDial</span>
+      </div>
+
+      <ul class="sb-nav" id="sb-nav-list">
+        <li class="sb-nav-item active" data-cat="all">
+          <span><i class="fa-solid fa-border-all" style="width:1.2rem;margin-right:.4rem"></i> Todos</span>
+          <span class="sb-badge" id="sb-count-all">21</span>
+        </li>
+      </ul>
+
+      <div class="sb-sidebar-footer">
+        <h4><i class="fa-solid fa-note-sticky"></i> Nota rápida</h4>
+        <div style="font-size:.78rem;color:var(--text-muted)">Lembretes sincronizados no GitHub.</div>
+      </div>
+    </aside>
+
+    <main class="sb-main">
+      <div class="sb-top-bar">
+        <div>
+          <h2 style="font-size:1.6rem;font-weight:700" id="sb-current-title">Todos os Links</h2>
+          <div style="font-size:.82rem;color:var(--text-muted);margin-top:.2rem">Acesse rapidamente seus sites de trabalho e favoritos.</div>
+        </div>
+        <input type="search" class="sb-search" placeholder="Filtrar links rapidamente...">
+      </div>
+
+      <div class="sb-grid" id="sb-cards-target">
+        <!-- Renderizado dinamicamente -->
+      </div>
+    </main>
+  </div>
+</section>
+
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+
+/* ---------- DADOS REAIS DO SPEEDDIAL ---------- */
+let appsData = [];
+let orderData = [];
+
+async function loadData(){
+  try{
+    const res = await fetch('links.json?t='+Date.now());
+    const data = await res.json();
+    appsData = data.apps || [];
+    orderData = data.order || [];
+  }catch(e){
+    // Fallback caso abra via file://
+    appsData = [
+      {category:"SITES",name:"Google",url:"https://www.google.com",icon:"fa-brands fa-google",useFavicon:true},
+      {category:"SITES",name:"UOL",url:"https://www.uol.com.br",icon:"fa-solid fa-globe",useFavicon:true},
+      {category:"IA",name:"ChatGPT",url:"https://chatgpt.com",icon:"fa-solid fa-robot",useFavicon:true},
+      {category:"IA",name:"Claude",url:"https://claude.ai",icon:"fa-solid fa-brain",useFavicon:true},
+      {category:"IA",name:"Gemini",url:"https://gemini.google.com",icon:"fa-solid fa-wand-magic-sparkles",useFavicon:true},
+      {category:"TRABALHO",name:"Teams Microsoft",url:"https://teams.microsoft.com",icon:"fa-solid fa-video",useFavicon:false},
+      {category:"TRABALHO",name:"Fokus R2T",url:"https://fokus-r2t.com.br",icon:"fa-solid fa-desktop",useFavicon:false},
+      {category:"REDES SOCIAIS",name:"Instagram",url:"https://www.instagram.com",icon:"fa-brands fa-instagram",useFavicon:true},
+      {category:"REDES SOCIAIS",name:"YouTube",url:"https://www.youtube.com",icon:"fa-brands fa-youtube",useFavicon:true},
+      {category:"REDES SOCIAIS",name:"X (Twitter)",url:"https://x.com",icon:"fa-brands fa-x-twitter",useFavicon:true},
+      {category:"COMPRAS",name:"Amazon",url:"https://www.amazon.com.br",icon:"fa-brands fa-amazon",useFavicon:true},
+      {category:"COMPRAS",name:"Mercado Livre",url:"https://www.mercadolivre.com.br",icon:"fa-solid fa-cart-shopping",useFavicon:true},
+      {category:"DESENVOLVIMENTO",name:"Baremopro",url:"https://baremopro.nexus-infra.top",icon:"fa-solid fa-server",useFavicon:true},
+      {category:"DESENVOLVIMENTO",name:"Nexus Infra",url:"https://nexus-infra.top",icon:"fa-solid fa-network-wired",useFavicon:false}
+    ];
+    orderData = ["SITES","IA","TRABALHO","REDES SOCIAIS","COMPRAS","DESENVOLVIMENTO"];
+  }
+  renderAllViews();
+}
+
+function getFavicon(url){
+  try{
+    const host = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=128`;
+  }catch(e){return ''}
+}
+
+/* ---------- 1. RENDER BENTO ---------- */
+function renderBento(){
+  const cats = {};
+  appsData.forEach(a=>{
+    (cats[a.category] = cats[a.category] || []).push(a);
+  });
+  const html = (orderData.length?orderData:Object.keys(cats)).filter(c=>cats[c]).map(cat=>{
+    const items = cats[cat].map(a=>{
+      const fav = a.useFavicon ? `<img src="${getFavicon(a.url)}">` : `<i class="${a.icon}" style="color:var(--accent)"></i>`;
+      let domain = ''; try{domain = new URL(a.url).hostname.replace('www.','')}catch(e){}
+      return `<a class="bento-link-item" href="${a.url}" target="_blank">
+        <span class="bento-icon">${fav}</span>
+        <span class="bento-link-txt"><b>${a.name}</b><small>${domain}</small></span>
+      </a>`;
+    }).join('');
+    return `<div class="bento-card">
+      <div class="bento-cat-title"><span>${cat}</span><span style="font-size:.7rem;opacity:.6">${cats[cat].length}</span></div>
+      <div>${items}</div>
+    </div>`;
+  }).join('');
+  $('#bento-cats-target').innerHTML = html;
+}
+
+/* ---------- 2. RENDER RAYCAST ---------- */
+function renderRaycast(filterCat='all'){
+  const filtered = filterCat==='all' ? appsData : appsData.filter(a=>a.category===filterCat);
+  const html = filtered.map(a=>{
+    const fav = a.useFavicon ? `<img src="${getFavicon(a.url)}">` : `<i class="${a.icon}"></i>`;
+    let domain = ''; try{domain = new URL(a.url).hostname.replace('www.','')}catch(e){}
+    return `<a class="ray-card" href="${a.url}" target="_blank">
+      ${fav}
+      <div class="ray-card-info"><b>${a.name}</b><small>${domain}</small></div>
+    </a>`;
+  }).join('');
+  $('#ray-links-target').innerHTML = html;
+}
+$('#ray-filter-tabs').addEventListener('click',e=>{
+  const b=e.target.closest('.ray-pill');if(!b)return;
+  $$('.ray-pill').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  renderRaycast(b.dataset.cat);
+});
+
+/* ---------- 3. RENDER MACOS ---------- */
+function renderMacos(){
+  const html = appsData.map(a=>{
+    const fav = a.useFavicon ? `<img src="${getFavicon(a.url)}">` : `<i class="${a.icon}"></i>`;
+    return `<a class="macos-app-icon-wrap" href="${a.url}" target="_blank">
+      <div class="macos-squircle">${fav}</div>
+      <span class="macos-app-label">${a.name}</span>
+    </a>`;
+  }).join('');
+  $('#macos-apps-target').innerHTML = html;
+
+  // Dock favoritos
+  const dock = appsData.slice(0,6).map(a=>{
+    const fav = a.useFavicon ? `<img src="${getFavicon(a.url)}">` : `<i class="${a.icon}" style="color:#fff"></i>`;
+    return `<a class="macos-dock-icon" href="${a.url}" target="_blank" title="${a.name}">${fav}</a>`;
+  }).join('');
+  $('#macos-dock-target').innerHTML = dock;
+}
+
+/* ---------- 4. RENDER SIDEBAR ---------- */
+let curSbCat = 'all';
+function renderSidebar(){
+  const cats = {};
+  appsData.forEach(a=>{ (cats[a.category] = cats[a.category] || []).push(a) });
+  $('#sb-count-all').textContent = appsData.length;
+  
+  const navHtml = `<li class="sb-nav-item ${curSbCat==='all'?'active':''}" data-cat="all">
+    <span><i class="fa-solid fa-border-all" style="width:1.2rem;margin-right:.4rem"></i> Todos</span>
+    <span class="sb-badge">${appsData.length}</span>
+  </li>` + Object.keys(cats).map(c=>`
+    <li class="sb-nav-item ${curSbCat===c?'active':''}" data-cat="${c}">
+      <span><i class="fa-solid fa-folder" style="width:1.2rem;margin-right:.4rem"></i> ${c}</span>
+      <span class="sb-badge">${cats[c].length}</span>
+    </li>
+  `).join('');
+  $('#sb-nav-list').innerHTML = navHtml;
+
+  const filtered = curSbCat==='all' ? appsData : (cats[curSbCat]||[]);
+  const cardsHtml = filtered.map(a=>{
+    const fav = a.useFavicon ? `<img src="${getFavicon(a.url)}">` : `<i class="${a.icon}"></i>`;
+    let domain = ''; try{domain = new URL(a.url).hostname.replace('www.','')}catch(e){}
+    return `<a class="sb-card" href="${a.url}" target="_blank">
+      ${fav}
+      <div><b style="font-size:.85rem;display:block">${a.name}</b><small style="font-size:.7rem;color:var(--text-dim)">${domain}</small></div>
+    </a>`;
+  }).join('');
+  $('#sb-cards-target').innerHTML = cardsHtml;
+  $('#sb-current-title').textContent = curSbCat==='all' ? 'Todos os Links' : curSbCat;
+}
+$('#sb-nav-list').addEventListener('click',e=>{
+  const item=e.target.closest('.sb-nav-item');if(!item)return;
+  curSbCat = item.dataset.cat;
+  renderSidebar();
+});
+
+function renderAllViews(){
+  renderBento();
+  renderRaycast();
+  renderMacos();
+  renderSidebar();
+}
+
+/* ---------- SWITCHER DE MODELOS ---------- */
+$$('.model-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    $$('.model-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    $$('.model-view').forEach(v=>v.classList.remove('active'));
+    $(`#${btn.dataset.target}`).classList.add('active');
+  });
+});
+
+/* ---------- TEMA CLARO / ESCURO ---------- */
+$('#btn-theme-toggle').onclick=()=>{
+  document.body.classList.toggle('light-theme');
+  const isLight = document.body.classList.contains('light-theme');
+  $('#btn-theme-toggle').innerHTML = isLight ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+};
+
+/* ---------- RELÓGIO EM TEMPO REAL ---------- */
+function updateClocks(){
+  const now = new Date();
+  const time = [now.getHours(),now.getMinutes()].map(x=>String(x).padStart(2,'0')).join(':');
+  const dateStr = now.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  $('#bento-clock').textContent = time;
+  $('#ray-clock').textContent = time;
+  $('#macos-clock').textContent = time;
+  $('#bento-date').textContent = dateStr;
+}
+setInterval(updateClocks,1000);
+updateClocks();
+
+loadData();
+</script>
+</body>
+</html>
