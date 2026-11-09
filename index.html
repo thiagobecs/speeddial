@@ -959,9 +959,38 @@ const load = (k, f) => { try { const v = JSON.parse(localStorage.getItem(k)); re
 const store = (k, v) => raw(k, JSON.stringify(v));
 const newTab = () => raw('dashboard_newtab') === '1';
 
-/* Base64 UTF-8 seguro */
-const toBase64 = str => btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
-const fromBase64 = str => decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+/* Sanitização robusta para credenciais do GitHub (remove quebras, caracteres invisíveis/zero-width) */
+function cleanGhToken(str) {
+  if (!str) return '';
+  let t = String(str).trim();
+  t = t.replace(/^(bearer|token)\s+/i, '');
+  return t.replace(/[^\x21-\x7E]/g, '').trim();
+}
+function cleanGhText(str) {
+  if (!str) return '';
+  let s = String(str).trim();
+  s = s.replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
+  return s.replace(/[^\w.-]/g, '');
+}
+
+/* Base64 UTF-8 seguro para qualquer caractere, acento ou emoji */
+function toBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+function fromBase64(str) {
+  const clean = String(str || '').replace(/\s+/g, '');
+  const binary = atob(clean);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return new TextDecoder().decode(bytes);
+}
 
 /* ---------- PWA Service Worker ---------- */
 if ('serviceWorker' in navigator) {
@@ -1441,10 +1470,11 @@ function pushGitHubDebounced(){
 }
 
 async function pushGitHub(){
-  const owner = (raw('gh_owner') || '').trim(),
-        repo = (raw('gh_repo') || '').trim(),
-        branch = (raw('gh_branch') || 'main').trim(),
-        token = (raw('gh_token') || '').trim();
+  const owner = cleanGhText(raw('gh_owner') || ''),
+        repo = cleanGhText(raw('gh_repo') || ''),
+        branch = cleanGhText(raw('gh_branch') || 'main') || 'main',
+        token = cleanGhToken(raw('gh_token') || '');
+
   if (!owner || !repo || !token) { updateGhStatus('', 'GitHub'); return }
 
   updateGhStatus('syncing', 'Salvando...');
@@ -1452,13 +1482,22 @@ async function pushGitHub(){
     const path = 'links.json';
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`;
     let sha = null;
-    const getRes = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
-    });
+
+    const headers = {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github+json'
+    };
+
+    const getRes = await fetch(url, { headers });
     if (getRes.status === 200) {
       const data = await getRes.json();
       sha = data.sha;
+    } else if (getRes.status === 401) {
+      throw new Error('Token do GitHub inválido ou expirado (HTTP 401)');
+    } else if (getRes.status === 403) {
+      throw new Error('Token sem permissão de escrita. Precisa do escopo "repo" (HTTP 403)');
     }
+
     const payload = buildPayload();
     const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: 'PUT',
@@ -1474,19 +1513,25 @@ async function pushGitHub(){
         ...(sha ? { sha } : {})
       })
     });
-    if (!putRes.ok) throw new Error('Falha no upload para o GitHub');
+
+    if (!putRes.ok) {
+      const errData = await putRes.json().catch(() => ({}));
+      throw new Error(errData.message || `Erro HTTP ${putRes.status}`);
+    }
+
     updateGhStatus('synced', 'GitHub OK');
   } catch(err) {
     console.error('Erro GitHub Sync:', err);
     updateGhStatus('error', 'Erro sync');
+    if (err && err.message) toast(err.message);
   }
 }
 
 async function pullGitHub(manual=false){
-  const owner = (raw('gh_owner') || '').trim(),
-        repo = (raw('gh_repo') || '').trim(),
-        branch = (raw('gh_branch') || 'main').trim(),
-        token = (raw('gh_token') || '').trim();
+  const owner = cleanGhText(raw('gh_owner') || ''),
+        repo = cleanGhText(raw('gh_repo') || ''),
+        branch = cleanGhText(raw('gh_branch') || 'main') || 'main',
+        token = cleanGhToken(raw('gh_token') || '');
 
   if (!token || !owner || !repo) {
     try {
@@ -1508,9 +1553,16 @@ async function pullGitHub(manual=false){
   try {
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/links.json?ref=${branch}&t=${Date.now()}`;
     const res = await fetch(url, {
-      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github+json'
+      }
     });
-    if (!res.ok) throw new Error('Erro ao buscar links.json');
+
+    if (res.status === 401) throw new Error('Token do GitHub inválido ou expirado (HTTP 401)');
+    if (res.status === 404) throw new Error('Arquivo links.json não encontrado no repositório');
+    if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
+
     const data = await res.json();
     const jsonStr = fromBase64(data.content);
     const parsed = JSON.parse(jsonStr);
@@ -1518,17 +1570,28 @@ async function pullGitHub(manual=false){
     updateGhStatus('synced', 'GitHub OK');
     if (manual) toast('Links atualizados do GitHub com sucesso!');
   } catch(err) {
-    console.error(err);
+    console.error('Erro pullGitHub:', err);
     updateGhStatus('error', 'Erro sync');
-    if (manual) toast('Não foi possível baixar do GitHub. Confira suas configurações.');
+    if (manual) toast(err.message || 'Não foi possível baixar do GitHub');
   }
 }
 
 $('#b-gh-save').onclick = () => {
-  raw('gh_owner', $('#gh-owner').value.trim());
-  raw('gh_repo', $('#gh-repo').value.trim());
-  raw('gh_branch', $('#gh-branch').value.trim() || 'main');
-  raw('gh_token', $('#gh-token').value.trim());
+  const owner = cleanGhText($('#gh-owner').value);
+  const repo = cleanGhText($('#gh-repo').value);
+  const branch = cleanGhText($('#gh-branch').value) || 'main';
+  const token = cleanGhToken($('#gh-token').value);
+
+  raw('gh_owner', owner);
+  raw('gh_repo', repo);
+  raw('gh_branch', branch);
+  raw('gh_token', token);
+
+  $('#gh-owner').value = owner;
+  $('#gh-repo').value = repo;
+  $('#gh-branch').value = branch;
+  $('#gh-token').value = token;
+
   pushGitHub();
   toast('Configurações salvas. Sincronizando com GitHub...');
 };
