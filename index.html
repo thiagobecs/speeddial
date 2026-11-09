@@ -1020,7 +1020,9 @@ function fromBase64(str) {
 /* ---------- PWA Service Worker ---------- */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.update().catch(()=>{});
+    }).catch(()=>{});
   });
 }
 
@@ -1494,6 +1496,20 @@ function pushGitHubDebounced(){
   ghTimeout = setTimeout(pushGitHub, 1200);
 }
 
+/* Parser JSON seguro para evitar SyntaxError no Safari quando uma resposta não é JSON */
+async function parseJsonSafely(response, contextName) {
+  const text = await response.text();
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    console.error(`Erro ao decodificar JSON em ${contextName}:`, text);
+    if (text.startsWith('<!DOCTYPE') || text.includes('<html')) {
+      throw new Error(`O servidor retornou uma página HTML em vez de dados JSON (${contextName})`);
+    }
+    throw new Error(`Formato inesperado em ${contextName}: ${text.slice(0, 80)}`);
+  }
+}
+
 async function pushGitHub(){
   const owner = cleanGhOwner(raw('gh_owner') || ''),
         repo = cleanGhRepo(raw('gh_repo') || ''),
@@ -1515,12 +1531,14 @@ async function pushGitHub(){
 
     const getRes = await fetch(url, { headers });
     if (getRes.status === 200) {
-      const data = await getRes.json();
+      const data = await parseJsonSafely(getRes, 'getSha');
       sha = data.sha;
     } else if (getRes.status === 401) {
       throw new Error('Token do GitHub inválido ou expirado (HTTP 401)');
     } else if (getRes.status === 403) {
       throw new Error('Token sem permissão de escrita. Precisa do escopo "repo" (HTTP 403)');
+    } else if (getRes.status !== 404) {
+      throw new Error(`Erro ao verificar arquivo: HTTP ${getRes.status}`);
     }
 
     const payload = buildPayload();
@@ -1540,7 +1558,7 @@ async function pushGitHub(){
     });
 
     if (!putRes.ok) {
-      const errData = await putRes.json().catch(() => ({}));
+      const errData = await parseJsonSafely(putRes, 'putLinks').catch(() => ({}));
       throw new Error(errData.message || `Erro HTTP ${putRes.status}`);
     }
 
@@ -1562,7 +1580,7 @@ async function pullGitHub(manual=false){
     try {
       const res = await fetch('./links.json?t=' + Date.now());
       if (res.ok) {
-        const d = await res.json();
+        const d = await parseJsonSafely(res, 'links.json local');
         const localTime = parseInt(raw('dashboard_updated_at') || '0', 10);
         if (!localTime || (d.updatedAt && d.updatedAt > localTime) || manual) {
           applyPayload(d);
@@ -1588,9 +1606,15 @@ async function pullGitHub(manual=false){
     if (res.status === 404) throw new Error('Arquivo links.json não encontrado no repositório');
     if (!res.ok) throw new Error(`Erro HTTP ${res.status}`);
 
-    const data = await res.json();
+    const data = await parseJsonSafely(res, 'pullGitHub');
+    if (!data || !data.content) throw new Error('Resposta do GitHub não contém conteúdo');
     const jsonStr = fromBase64(data.content);
-    const parsed = JSON.parse(jsonStr);
+    let parsed;
+    try {
+      parsed = JSON.parse(jsonStr);
+    } catch(e) {
+      throw new Error('Conteúdo do links.json inválido');
+    }
     applyPayload(parsed);
     updateGhStatus('synced', 'GitHub OK');
     if (manual) toast('Links atualizados do GitHub com sucesso!');

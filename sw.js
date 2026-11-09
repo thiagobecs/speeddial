@@ -1,10 +1,9 @@
-const CACHE_NAME = 'speeddial-v2';
+const CACHE_NAME = 'speeddial-v3';
 const ASSETS = [
   './',
   './index.html',
   './links.json',
-  './manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+  './manifest.json'
 ];
 
 self.addEventListener('install', event => {
@@ -23,16 +22,27 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
-  // Network first with cache fallback
+
+  // CRÍTICO: Só intercepta arquivos locais do SpeedDial (mesma origem).
+  // NUNCA intercepta requisições de APIs externas (como api.github.com, open-meteo, etc.)
+  if (!event.request.url.startsWith(self.location.origin)) return;
+
   event.respondWith(
     fetch(event.request)
       .then(res => {
-        if (res.status === 200 && event.request.url.startsWith(self.location.origin)) {
+        if (res.status === 200) {
           const clone = res.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
         return res;
       })
-      .catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
+      .catch(() => caches.match(event.request).then(cached => {
+        if (cached) return cached;
+        // Só retorna index.html se for navegação de página do usuário
+        if (event.request.mode === 'navigate') {
+          return caches.match('./index.html');
+        }
+        return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+      }))
   );
 });
