@@ -959,19 +959,44 @@ const load = (k, f) => { try { const v = JSON.parse(localStorage.getItem(k)); re
 const store = (k, v) => raw(k, JSON.stringify(v));
 const newTab = () => raw('dashboard_newtab') === '1';
 
-/* Sanitização robusta para credenciais do GitHub (remove quebras, caracteres invisíveis/zero-width) */
+/* Sanitização robusta para credenciais do GitHub (remove quebras, aspas, espaços, caracteres invisíveis/zero-width) */
 function cleanGhToken(str) {
   if (!str) return '';
   let t = String(str).trim();
-  t = t.replace(/^(bearer|token)\s+/i, '');
-  return t.replace(/[^\x21-\x7E]/g, '').trim();
+  t = t.replace(/^["'`]|["'`]$/g, '');
+  t = t.replace(/^(bearer|token)\s*[:=]?\s*/i, '');
+  return t.replace(/[^a-zA-Z0-9_]/g, '');
+}
+function cleanGhOwner(str) {
+  if (!str) return '';
+  let s = String(str).trim();
+  s = s.replace(/^["'`]|["'`]$/g, '');
+  s = s.replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
+  if (s.includes('/')) s = s.split('/')[0];
+  return s.replace(/[^a-zA-Z0-9_.-]/g, '');
+}
+function cleanGhRepo(str) {
+  if (!str) return '';
+  let s = String(str).trim();
+  s = s.replace(/^["'`]|["'`]$/g, '');
+  s = s.replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
+  if (s.includes('/')) s = s.split('/').pop();
+  return s.replace(/[^a-zA-Z0-9_.-]/g, '');
 }
 function cleanGhText(str) {
   if (!str) return '';
   let s = String(str).trim();
-  s = s.replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '');
-  return s.replace(/[^\w.-]/g, '');
+  s = s.replace(/^["'`]|["'`]$/g, '');
+  return s.replace(/[^a-zA-Z0-9_.-]/g, '');
 }
+
+/* Sanitiza credenciais salvas no localStorage para curar valores corrompidos antigos */
+try {
+  if (raw('gh_token')) raw('gh_token', cleanGhToken(raw('gh_token')));
+  if (raw('gh_owner')) raw('gh_owner', cleanGhOwner(raw('gh_owner')));
+  if (raw('gh_repo')) raw('gh_repo', cleanGhRepo(raw('gh_repo')));
+  if (raw('gh_branch')) raw('gh_branch', cleanGhText(raw('gh_branch') || 'main') || 'main');
+} catch(e){}
 
 /* Base64 UTF-8 seguro para qualquer caractere, acento ou emoji */
 function toBase64(str) {
@@ -1470,8 +1495,8 @@ function pushGitHubDebounced(){
 }
 
 async function pushGitHub(){
-  const owner = cleanGhText(raw('gh_owner') || ''),
-        repo = cleanGhText(raw('gh_repo') || ''),
+  const owner = cleanGhOwner(raw('gh_owner') || ''),
+        repo = cleanGhRepo(raw('gh_repo') || ''),
         branch = cleanGhText(raw('gh_branch') || 'main') || 'main',
         token = cleanGhToken(raw('gh_token') || '');
 
@@ -1484,7 +1509,7 @@ async function pushGitHub(){
     let sha = null;
 
     const headers = {
-      'Authorization': `Bearer ${token}`,
+      'Authorization': `token ${token}`,
       'Accept': 'application/vnd.github+json'
     };
 
@@ -1502,7 +1527,7 @@ async function pushGitHub(){
     const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `token ${token}`,
         'Accept': 'application/vnd.github+json',
         'Content-Type': 'application/json'
       },
@@ -1528,8 +1553,8 @@ async function pushGitHub(){
 }
 
 async function pullGitHub(manual=false){
-  const owner = cleanGhText(raw('gh_owner') || ''),
-        repo = cleanGhText(raw('gh_repo') || ''),
+  const owner = cleanGhOwner(raw('gh_owner') || ''),
+        repo = cleanGhRepo(raw('gh_repo') || ''),
         branch = cleanGhText(raw('gh_branch') || 'main') || 'main',
         token = cleanGhToken(raw('gh_token') || '');
 
@@ -1554,7 +1579,7 @@ async function pullGitHub(manual=false){
     const url = `https://api.github.com/repos/${owner}/${repo}/contents/links.json?ref=${branch}&t=${Date.now()}`;
     const res = await fetch(url, {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `token ${token}`,
         'Accept': 'application/vnd.github+json'
       }
     });
@@ -1577,8 +1602,8 @@ async function pullGitHub(manual=false){
 }
 
 $('#b-gh-save').onclick = () => {
-  const owner = cleanGhText($('#gh-owner').value);
-  const repo = cleanGhText($('#gh-repo').value);
+  const owner = cleanGhOwner($('#gh-owner').value);
+  const repo = cleanGhRepo($('#gh-repo').value);
   const branch = cleanGhText($('#gh-branch').value) || 'main';
   const token = cleanGhToken($('#gh-token').value);
 
