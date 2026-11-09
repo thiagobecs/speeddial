@@ -1,5 +1,5 @@
 {
-  "versao": 3,
+  "versao": 4,
   "apps": [
     {
       "id": "3d1e95d6-851c-4a35-8e12-4015cdd94c2d",
@@ -7,7 +7,8 @@
       "name": "UOL",
       "url": "https://www.uol.com.br/",
       "icon": "fa-solid fa-globe",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "e3304dc2-ef8a-484b-9b17-d95b6429c7e4",
@@ -15,7 +16,8 @@
       "name": "GOOGLE",
       "url": "https://www.google.com/",
       "icon": "fa-brands fa-google",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "44d556d5-9a58-4536-8fe1-c24eaeb5be91",
@@ -23,7 +25,8 @@
       "name": "SOCIAL MEDIA GIRLS",
       "url": "https://forums.socialmediagirls.com/",
       "icon": "fa-solid fa-globe",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "ae174760-5a2e-46c9-9232-f9bdcc7117d8",
@@ -31,7 +34,8 @@
       "name": "SUA MÚSICA",
       "url": "https://suamusica.com.br/",
       "icon": "fa-solid fa-music",
-      "useFavicon": false
+      "useFavicon": false,
+      "pinned": false
     },
     {
       "id": "479c58b2-765d-4821-8b0a-531a0561dc4c",
@@ -39,7 +43,8 @@
       "name": "BAREMOPRO",
       "url": "https://baremopro.nexus-infra.top/",
       "icon": "fa-solid fa-server",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "1c1ed8be-57c3-405c-8b1e-620070a0e319",
@@ -47,7 +52,8 @@
       "name": "NEXUS INFRA",
       "url": "https://nexus-infra.top/",
       "icon": "fa-solid fa-network-wired",
-      "useFavicon": false
+      "useFavicon": false,
+      "pinned": false
     },
     {
       "id": "097d6562-7e20-4e00-8286-9209357f7376",
@@ -55,7 +61,8 @@
       "name": "GVT ETADIRECT",
       "url": "https://gvt.etadirect.com/",
       "icon": "fa-solid fa-laptop",
-      "useFavicon": false
+      "useFavicon": false,
+      "pinned": false
     },
     {
       "id": "c1c2980f-cdd0-4119-97ce-24654c881f6d",
@@ -63,7 +70,8 @@
       "name": "TEAMS MICROSOFT",
       "url": "https://teams.microsoft.com/",
       "icon": "fa-solid fa-video",
-      "useFavicon": false
+      "useFavicon": false,
+      "pinned": false
     },
     {
       "id": "4d0ab73f-0c96-4d09-acf7-af47f333f6e6",
@@ -71,7 +79,8 @@
       "name": "FOKUS R2T",
       "url": "https://fokus-r2t.com.br/desktop/index.php",
       "icon": "fa-solid fa-desktop",
-      "useFavicon": false
+      "useFavicon": false,
+      "pinned": false
     },
     {
       "id": "a074e4e3-d8ea-4333-9ef2-dfa06eaf7c6d",
@@ -79,7 +88,8 @@
       "name": "INSTAGRAM",
       "url": "https://www.instagram.com/",
       "icon": "fa-brands fa-instagram",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "e166c059-80c9-4bda-979f-0af17692b407",
@@ -87,7 +97,8 @@
       "name": "X (TWITTER)",
       "url": "https://x.com/",
       "icon": "fa-brands fa-x-twitter",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "d08dcc15-b8a9-4f10-b978-1c4ec3cb331c",
@@ -95,7 +106,8 @@
       "name": "TIKTOK",
       "url": "https://www.tiktok.com/",
       "icon": "fa-brands fa-tiktok",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "d62ff55f-cf02-4d53-a49a-e5bf9b101d30",
@@ -103,7 +115,8 @@
       "name": "YOUTUBE",
       "url": "https://www.youtube.com/",
       "icon": "fa-brands fa-youtube",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "f8a5b218-cd65-46ff-b9d6-3a11c1b6e1dc",
@@ -111,7 +124,8 @@
       "name": "GEMINI",
       "url": "https://gemini.google.com/",
       "icon": "fa-solid fa-wand-magic-sparkles",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "7756acfc-fd51-45af-9890-a3a7e53a6a5d",
@@ -119,7 +133,8 @@
       "name": "CHATGPT",
       "url": "https://chatgpt.com/",
       "icon": "fa-solid fa-robot",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "bebe4ce7-dd58-4683-8698-b0a106cbdadc",
@@ -127,7 +142,8 @@
       "name": "CLAUDE",
       "url": "https://claude.ai/",
       "icon": "fa-solid fa-brain",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "2a1efc31-5e15-4a35-9512-3cbe1ce37c20",
@@ -135,7 +151,8 @@
       "name": "AMAZON",
       "url": "https://www.amazon.com.br/",
       "icon": "fa-brands fa-amazon",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "a1e0244f-2f82-4ff7-aa66-d6ff2e6e4787",
@@ -143,7 +160,8 @@
       "name": "MERCADO LIVRE",
       "url": "https://www.mercadolivre.com.br/",
       "icon": "fa-solid fa-cart-shopping",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "18922e72-0ce3-4d78-9b4c-5a7d1dd9fa7c",
@@ -151,7 +169,8 @@
       "name": "OLX",
       "url": "https://www.olx.com.br/",
       "icon": "fa-solid fa-tags",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "07eaa57e-dd17-46f2-aaf5-0035b3201800",
@@ -159,7 +178,8 @@
       "name": "PELANDO",
       "url": "https://www.pelando.com.br/",
       "icon": "fa-solid fa-fire",
-      "useFavicon": true
+      "useFavicon": true,
+      "pinned": false
     },
     {
       "id": "4b08d3b7-6ec6-4155-9cee-58a3c4db7c34",
@@ -167,7 +187,8 @@
       "name": "BARBERFLOW",
       "url": "https://barberflow-web--barberflow-gestao.us-east4.hosted.app/agendar/barbearia-vc",
       "icon": "fa-solid fa-scissors",
-      "useFavicon": false
+      "useFavicon": false,
+      "pinned": false
     }
   ],
   "order": [
@@ -183,6 +204,8 @@
   "primary": "#ef4444",
   "mode": "light",
   "viewMode": "cards",
+  "bgImg": "",
+  "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794071033107
+  "updatedAt": 1794256145105
 }
