@@ -195,9 +195,9 @@
       "category": "REDES SOCIAIS",
       "name": "WhatsApp Web",
       "url": "https://web.whatsapp.com/",
-      "useFavicon": true,
       "icon": "fa-solid fa-globe",
-      "pinned": false
+      "useFavicon": true,
+      "pinned": true
     }
   ],
   "order": [
@@ -216,5 +216,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794333590363
+  "updatedAt": 1794333660437
 }
