@@ -197,7 +197,7 @@
       "url": "https://web.whatsapp.com/",
       "icon": "fa-solid fa-globe",
       "useFavicon": true,
-      "pinned": true
+      "pinned": false
     }
   ],
   "order": [
@@ -216,5 +216,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794333660437
+  "updatedAt": 1794333667944
 }
