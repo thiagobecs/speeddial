@@ -70,7 +70,7 @@
       "name": "TEAMS MICROSOFT",
       "url": "https://teams.microsoft.com/",
       "icon": "fa-solid fa-video",
-      "useFavicon": false,
+      "useFavicon": true,
       "pinned": false
     },
     {
@@ -207,5 +207,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794310029005
+  "updatedAt": 1794310038345
 }
