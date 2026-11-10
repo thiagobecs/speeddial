@@ -198,15 +198,6 @@
       "icon": "fa-solid fa-globe",
       "useFavicon": true,
       "pinned": false
-    },
-    {
-      "id": "3f8b79f5-bbf4-4893-8a76-f19ade7bfe3a",
-      "category": "REDES SOCIAIS",
-      "name": "Teste",
-      "url": "https://tes/",
-      "useFavicon": true,
-      "icon": "fa-solid fa-globe",
-      "pinned": false
     }
   ],
   "order": [
@@ -225,5 +216,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794334489597
+  "updatedAt": 1794334492433
 }
