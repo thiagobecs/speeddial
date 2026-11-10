@@ -34,7 +34,7 @@
       "name": "SUA MÚSICA",
       "url": "https://suamusica.com.br/",
       "icon": "fa-solid fa-music",
-      "useFavicon": false,
+      "useFavicon": true,
       "pinned": false
     },
     {
@@ -207,5 +207,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794310043104
+  "updatedAt": 1794310053649
 }
