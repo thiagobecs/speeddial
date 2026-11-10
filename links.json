@@ -61,7 +61,7 @@
       "name": "GVT ETADIRECT",
       "url": "https://gvt.etadirect.com/",
       "icon": "fa-solid fa-laptop",
-      "useFavicon": false,
+      "useFavicon": true,
       "pinned": false
     },
     {
@@ -207,5 +207,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794256145105
+  "updatedAt": 1794310029005
 }
