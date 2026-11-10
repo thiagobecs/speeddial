@@ -79,7 +79,7 @@
       "name": "FOKUS R2T",
       "url": "https://fokus-r2t.com.br/desktop/index.php",
       "icon": "fa-solid fa-desktop",
-      "useFavicon": false,
+      "useFavicon": true,
       "pinned": false
     },
     {
@@ -207,5 +207,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794310038345
+  "updatedAt": 1794310043104
 }
