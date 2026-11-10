@@ -189,6 +189,15 @@
       "icon": "fa-solid fa-scissors",
       "useFavicon": false,
       "pinned": false
+    },
+    {
+      "id": "6d387596-0dcb-4bae-bc4a-ea94438fe787",
+      "category": "REDES SOCIAIS",
+      "name": "WhatsApp Web",
+      "url": "https://web.whatsapp.com/",
+      "useFavicon": true,
+      "icon": "fa-solid fa-globe",
+      "pinned": false
     }
   ],
   "order": [
@@ -207,5 +216,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794312133648
+  "updatedAt": 1794333590363
 }
