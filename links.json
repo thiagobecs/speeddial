@@ -198,6 +198,15 @@
       "icon": "fa-solid fa-globe",
       "useFavicon": true,
       "pinned": false
+    },
+    {
+      "id": "1c2c95c7-9140-4b9a-9975-edea8676b3b5",
+      "category": "DESENVOLVIMENTO",
+      "name": "VorteXa",
+      "url": "https://vortexa.web.app/",
+      "useFavicon": true,
+      "icon": "fa-solid fa-globe",
+      "pinned": false
     }
   ],
   "order": [
@@ -216,5 +225,5 @@
   "bgImg": "",
   "engine": "google",
   "novaAba": false,
-  "updatedAt": 1794334492433
+  "updatedAt": 1794410019758
 }
